@@ -138,13 +138,13 @@ class UserController extends AbstractController
         return $this->render('user/new.html.twig');
     }
 
-    #[Route('/{id}/delete', name: 'user_delete_cla', methods: ['POST'])] // La route '/{id}/delete' permet de supprimer un utilisateur
+    #[Route('/{id}/delete', name: 'user_delete_cla', methods: ['DELETE','GET'])] // La route '/{id}/delete' permet de supprimer un utilisateur
     public function delete_cla(User $user, EntityManagerInterface $em): Response // La méthode delete() permet de supprimer un utilisateur existant
     {
         $em->remove($user); // Supprime l'utilisateur de la base de données
         $em->flush(); // Sauvegarde la suppression dans la base de données
 
-        return $this->redirectToRoute('user_index'); // Redirige vers la liste des utilisateurs après suppression
+        return $this->redirectToRoute('user_list'); // Redirige vers la liste des utilisateurs après suppression
     }
 
     #[Route('/{id}/edit', name: 'user_edit_cla', methods: ['GET', 'POST'])] // La route '/{id}/edit' permet de modifier un utilisateur existant
@@ -160,7 +160,8 @@ class UserController extends AbstractController
 
             $em->flush(); // Sauvegarde les modifications apportées à l'utilisateur dans la base de données
 
-            return $this->redirectToRoute('user_index'); // Redirige vers la page de la liste des utilisateurs après modification
+            return $this->redirectToRoute('user_list'); // Redirige vers la page de la liste des utilisateurs après modification
         }
+        return $this->render('user/edit.html.twig', ['user' => $user]);
     }
 }
