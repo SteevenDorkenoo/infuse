@@ -33,15 +33,15 @@ class FavoritesController extends AbstractController
         {
             $fav->setDate(new \DateTime('now'));
             $fav->setUserId($this->getUser());
-            $fav->setRecipeId($recipe);//a faire
+            $fav->setRecipeId($recipe);
 
             $em->persist($fav); // Prépare le favoris à être sauvegardée dans la base de données
             $em->flush();
         }
-        return $this->redirectToRoute('show_recipe');
+        return $this->redirectToRoute('recipe_show',['id'=> $recipe->getId()]);
     }
 
-    #[Route('{id}/favorites/delete', name: 'favorites_delete',methods: ['GET','POST'])]
+    #[Route('{id}/favorites/delete/{fav}', name: 'favorites_delete',methods: ['GET','POST'])]
     public function fav_delete($id,Favorites $fav,Request $request, EntityManagerInterface $em): Response
     {
         if($request->isMethod('POST'))
@@ -49,6 +49,6 @@ class FavoritesController extends AbstractController
             $em->remove($fav); // Supprime une recette de la base de données
             $em->flush(); // Sauvegarde la suppression dans la base de données
         }
-        return $this->redirectToRoute('show_recipe',['id'=> $id]);
+        return $this->redirectToRoute('recipe_show',['id'=> $id]);
     }
 }

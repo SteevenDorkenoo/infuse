@@ -97,14 +97,14 @@ class RecipesController extends AbstractController
     }
 
     #[Route('/recipes/{id}', name: 'recipe_show', methods:'GET')]
-    public function show(Recipes $recipe, CommentsRepository $commentaireRepository, FavoritesRepository $fr): Response
+    public function show(Recipes $recipe,CommentsRepository $commentaireRepository, FavoritesRepository $fr): Response
     {
 
         $recipeID = $recipe->getId(); // Récupérer l'ID de la catégorie depuis le formulaire
         $user = $this->getUser(); // Récupérer informations utilisateur connecté
 
         $commentaires = $commentaireRepository->findBy(['recipe_id'=>$recipeID]);// Rechercher les commentaires correspondants
-        $fav = $fr->findBy(['userId'=>$user,'recipeId'=>$recipeID]);// Recherche du favoris en fonction de la recette et l'utilisateur
+        $fav = $fr->findOneBy(['userId'=>$user,'recipeId'=>$recipeID]);// Recherche du favoris en fonction de la recette et l'utilisateur
 
         return $this->render('recipes/show.html.twig',[
             'recipe' => $recipe,
