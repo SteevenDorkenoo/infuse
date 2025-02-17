@@ -1,0 +1,19 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Éditeur de commentaire{% endblock %}
+
+{% block body %}
+   <div class="container mt-5">
+    <h1>Modifier votre commentaire</h1>
+    <form method="post" class="mt-4">
+
+        <div class="form-group mt-3">
+            <label for="contenu">Contenu</label>
+            <input value="{{commentaire.content}}" type="contenu" id="contenu" name="contenu" class="form-control" required>
+        </div>
+
+        <button type="submit" class="btn btn-secondary btn-sm">Enregistrer</button>
+        <a href="{{ path('recipe_show',{ 'id': recipe.id}) }}" class="btn btn-secondary mt-3">Retour</a>
+    </form>
+</div>
+{% endblock %}

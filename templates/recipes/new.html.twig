@@ -1,0 +1,58 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Hello RecipesController!{% endblock %}
+
+{% block body %}
+<style>
+    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
+    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+</style>
+
+<div>
+    <form action="" method="post">
+        <label for="title">Nom de la recette</label>
+        <input type="text" id="title" name="_title" required>
+        
+        <label for="image">Ajouter une image</label>
+        <input type="text" id="image" name="_image">
+
+        {# <label for="id_categorie">Catégorie(s)</label>
+        <select name="id_categorie" id="id_categorie" size="3" multiple>
+            <option value="">-- Toutes les catégories --</option>
+            {% for categorie in categories %}
+                <option value="{{ categorie.id }}">{{ categorie.name}}</option>
+            {% endfor %}
+
+
+        </select>
+         #}
+         <div>
+            {% for categorie in categories %}
+            <input type="checkbox" name="id_categorie[]" id="{{ categorie.id }}" value="{{categorie.id}}">
+            <label for="{{ categorie.name}}">{{categorie.name}}</label>
+            <br>
+            {% endfor %}
+         </div>
+
+
+        <label for="introduction">écrire une introduction</label>
+        <input type="text" id="introduction" name="_introduction">
+
+        <label for="portions">Préciser le nombre de personnes ou de parts du plat</label>
+        <input type="number" id="portions" name="_portions" min="1" max="100" required>
+
+        <button type="submit">Enregistrer</button>
+        
+    </form>
+</div>
+
+<div class="example-wrapper">
+    <h1>Hello! ✅</h1>
+
+    This friendly message is coming from:
+    <ul>
+        <li>Your controller at <code><a href="{{ 'C:/Users/steev/Projet symfony/site_rectte/src/Controller/RecipesController.php'|file_link(0) }}">src/Controller/RecipesController.php</a></code></li>
+        <li>Your template at <code><a href="{{ 'C:/Users/steev/Projet symfony/site_rectte/templates/recipes/index.html.twig'|file_link(0) }}">templates/recipes/index.html.twig</a></code></li>
+    </ul>
+</div>
+{% endblock %}

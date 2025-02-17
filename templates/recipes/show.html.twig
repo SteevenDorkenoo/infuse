@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ recipe.title }}{% endblock %}
+
+{% block body %}
+    <h1>Recette : {{ recipe.title }}</h1>
+
+    <table class="table">
+        <tbody>
+            <tr>
+                <th>Id</th>
+                <td>{{ recipe.id }}</td>
+            </tr>
+            <tr>
+                <th>Titre</th>
+                <td>{{ recipe.title }}</td>
+            </tr>
+            <tr>
+                <th>Contenu</th>
+                <td>{{ recipe.introduction }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    {# <p>{{recipe.id}}</p>
+    <p>{{fav.id}}</p> #}
+
+    <div>    
+        {% if fav is not null %}
+        <form action="{{ path('favorites_delete', {'id': recipe.id, 'fav': fav.id }) }}" method="post"> 
+            <button type="submit" class="btn border">Déjà en favoris</button>
+        </form>
+        {% else %}
+        <form action="{{ path('favorites_new', {'id' : recipe.id}) }}" method="post"> 
+            <button type="submit" class="btn border">Ajouter en favoris</button>
+        </form>
+        {% endif %}
+    </div>
+
+    <div>
+        {%for commentaire in commentaires %}
+         <table class="table">
+        <tbody>
+            <tr>
+                <td>{{ commentaire.UserId.username }}</td>
+                
+                <td>
+                    {% if app.user and app.user.id == commentaire.UserId.id %}
+                    <a href="{{ path('commentaire_edit', {'id' : recipe.id , 'com': commentaire.id}) }}">editer</a>
+                    {% endif %}
+
+                    {% if app.user and app.user.id == commentaire.UserId.id or is_granted('ROLE_ADMIN') %}
+                    <form action="{{ path('commentaire_delete', {'recipe' : recipe.id ,'id': commentaire.id}) }}" method="post" style="display: inline;">
+
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ commentaire.id) }}">
+                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?');">Supprimer</button>
+        
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <td>{{commentaire.content}}</td>
+            </tr>
+        </tbody>
+    </table>
+        {%endfor%}
+    </div>
+    <div>
+         <a href="{{ path('commentaire_new',{ 'id': recipe.id}) }}">Ajouter commentaire</a>
+    </div>
+    <a href="{{ path('all_recipes') }}">Retour</a>
+
+{% endblock %}

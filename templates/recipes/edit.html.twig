@@ -1,0 +1,21 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Éditeur de recettes{% endblock %}
+
+{% block body %}
+<h1>Choisir les champs à modifier de la recette</h1>
+<div>
+    <form action="" method="post">
+        <label for="title">Titre</label>
+        <input type="text" id="title" name="_title" value="{{recipe.title}}">
+        <label for="introduction">Introduction</label>
+        <input type="text" id="introduction" name="_introduction" value="{{recipe.introduction}}">
+        <label for="portions">Portions</label>
+        <input type="number" id="portions" name="_portions" value="{{recipe.portions}}" min="1" max="100">
+        <button type="submit">Enregistrer les modifications</button>
+    </form>
+</div>
+{% endblock %}
+{# {% if recipe.user_id == user.id %}
+    
+{% endif %} #}

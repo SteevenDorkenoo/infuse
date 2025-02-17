@@ -24,7 +24,7 @@ security:
             form_login:  # Authentification par formulaire
                 login_path: app_login  # La route pour afficher le formulaire de connexion
                 check_path: app_login  # La route où les informations de connexion sont envoyées via une requête POST
-                default_target_path: /users  # Après une connexion réussie, l'utilisateur est redirigé vers la page /users
+                default_target_path: /recipes  # Après une connexion réussie, l'utilisateur est redirigé vers la page /users
                 enable_csrf: true
             logout:  # Gestion de la déconnexion
                 path: app_logout  # La route pour se déconnecter
