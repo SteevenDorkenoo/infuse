@@ -28,9 +28,10 @@ class FavoritesController extends AbstractController
     #[Route('{id}/favorites/new', name: 'favorites_new',methods: ['GET','POST'])]
     public function fav_new(Request $request, EntityManagerInterface $em, Recipes $recipe): Response
     {
-        $fav = new Favorites;
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         if($request->isMethod('POST'))
         {
+            $fav = new Favorites;
             $fav->setDate(new \DateTime('now'));
             $fav->setUserId($this->getUser());
             $fav->setRecipeId($recipe);
@@ -44,6 +45,7 @@ class FavoritesController extends AbstractController
     #[Route('{id}/favorites/delete/{fav}', name: 'favorites_delete',methods: ['GET','POST'])]
     public function fav_delete($id,Favorites $fav,Request $request, EntityManagerInterface $em): Response
     {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         if($request->isMethod('POST'))
         {
             $em->remove($fav); // Supprime une recette de la base de données

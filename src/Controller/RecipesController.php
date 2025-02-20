@@ -11,19 +11,30 @@ use Symfony\Flex\Recipe;
 use App\Entity\Recipes;
 use App\Entity\Favorites;
 use App\Repository\RecipesRepository;
-use Doctrine\ORM\EntityManager;
 use App\Repository\CommentsRepository;
 use App\Repository\CategoryRepository;
+use App\Repository\EndorsementRepository;
 use App\Repository\FavoritesRepository;
 
 class RecipesController extends AbstractController
 {
 
-    #[Route('/recipes', name: 'all_recipes',methods:'GET')]
-    public function allRecipes(Request $request, RecipesRepository $repository): Response
+    #[Route('/recipes', name: 'all_recipes',methods:['GET', 'POST'])]
+    public function allRecipes(Request $request, RecipesRepository $repository, CategoryRepository $cr): Response
     {
         $recipes = $repository->findAll();
-        return $this->render('recipes/index.html.twig', ['recipes'=>$recipes]);
+        $categories = $cr ->findAll();
+
+        $search = $request->query->get('search');
+        if($search)
+        {
+            $search = $request->query->get('search');
+            $recipes = $repository->findSearch($search);
+            $categories = $cr->findAll();
+
+            return $this->render('recipes/index.html.twig', ['recipes'=>$recipes,'categories'=>$categories]);
+        }
+        return $this->render('recipes/index.html.twig', ['recipes'=>$recipes,'categories'=>$categories]);
     }
 
     #[Route('/recipes/edit/{id}', name: 'edit_recipes',methods:['GET','POST'])]
@@ -97,7 +108,7 @@ class RecipesController extends AbstractController
     }
 
     #[Route('/recipes/{id}', name: 'recipe_show', methods:'GET')]
-    public function show(Recipes $recipe,CommentsRepository $commentaireRepository, FavoritesRepository $fr): Response
+    public function show(Recipes $recipe,CommentsRepository $commentaireRepository, FavoritesRepository $fr,EndorsementRepository $er): Response
     {
 
         $recipeID = $recipe->getId(); // Récupérer l'ID de la catégorie depuis le formulaire
@@ -105,11 +116,13 @@ class RecipesController extends AbstractController
 
         $commentaires = $commentaireRepository->findBy(['recipe_id'=>$recipeID]);// Rechercher les commentaires correspondants
         $fav = $fr->findOneBy(['userId'=>$user,'recipeId'=>$recipeID]);// Recherche du favoris en fonction de la recette et l'utilisateur
+        $endors = $er->findOneBy(['user_id'=> $user,'recipe_id'=> $recipeID]);//Recherche un vote sur l'article
 
         return $this->render('recipes/show.html.twig',[
             'recipe' => $recipe,
             'commentaires' => $commentaires,
-            'fav' => $fav
+            'fav' => $fav,
+            'endors' => $endors
         ]);
     }
 }

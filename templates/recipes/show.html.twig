@@ -16,18 +16,42 @@
                 <td>{{ recipe.title }}</td>
             </tr>
             <tr>
+                <form action="{{ path('endorsement_new',{ 'id': recipe.id}) }}" method="post">
+                    {% if endors == null %}
+                    <button type="submit" name="vote" value="{{true}}">Upvote</button>
+                    {% elseif endors.vote == true %}
+                    <button type="submit" name="vote" value="{{true}}">Déja Upvoter</button>
+                    {% else %}
+                    <button type="submit" name="vote" value="{{true}}">Upvote</button>
+                    {% endif %}
+                </form>
+                <form action="{{ path('endorsement_new',{ 'id': recipe.id}) }}" method="post">
+                    {% if endors == null %}
+                    <button type="submit" name="vote" value="{{false}}">Downvote</button>
+                    {% elseif endors.vote == false %}
+                    <button type="submit" name="vote" value="{{false}}">Déja Downvoter</button>
+                    {% else %}
+                    <button type="submit" name="vote" value="{{false}}">Downvote</button>
+                    {% endif %}
+                </form>
+            </tr>
+            <tr>
                 <th>Contenu</th>
-                <td>{{ recipe.introduction }}</td>
+                <td>
+                    {{ recipe.introduction }}
+
+                    {# {% set parties = recipe.introduction|split('e') %}
+                    {% set i = 0 %}
+                    {% for partie in parties %}
+                        {% set i = i + 1 %}
+                        <h3>Etapes {{ i }}</h3>
+                        <p>{{ partie }}</p>
+                    {% endfor %} #}
+
+                </td>
             </tr>
         </tbody>
     </table>
-    
-    {# {{dump(fav)}}
-    <p>======</p>
-    {{dump(recipe)}} #}
-
-    {# <p>{{fav.id}}</p>
-    <p>{{recipe.id}}</p> #}
 
     <div>    
         {% if fav is not null %}
@@ -46,7 +70,7 @@
          <table class="table">
         <tbody>
             <tr>
-                <td>{{ commentaire.UserId.username }}</td>
+                <td>{{ commentaire.UserId.username}}</td>
                 
                 <td>
                     {% if app.user and app.user.id == commentaire.UserId.id %}

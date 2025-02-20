@@ -42,11 +42,15 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\OneToMany(mappedBy: 'userId', targetEntity: Favorites::class)]
     private Collection $favorites;
 
+    #[ORM\OneToMany(mappedBy: 'user_id', targetEntity: Endorsement::class, orphanRemoval: true)]
+    private Collection $endorsements;
+
     public function __construct()
     {
         $this->recipes = new ArrayCollection();
         $this->comments = new ArrayCollection();
         $this->favorites = new ArrayCollection();
+        $this->endorsements = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -208,6 +212,36 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
             // set the owning side to null (unless already changed)
             if ($favorite->getUserId() === $this) {
                 $favorite->setUserId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Endorsement>
+     */
+    public function getEndorsements(): Collection
+    {
+        return $this->endorsements;
+    }
+
+    public function addEndorsement(Endorsement $endorsement): static
+    {
+        if (!$this->endorsements->contains($endorsement)) {
+            $this->endorsements->add($endorsement);
+            $endorsement->setUserId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeEndorsement(Endorsement $endorsement): static
+    {
+        if ($this->endorsements->removeElement($endorsement)) {
+            // set the owning side to null (unless already changed)
+            if ($endorsement->getUserId() === $this) {
+                $endorsement->setUserId(null);
             }
         }
 

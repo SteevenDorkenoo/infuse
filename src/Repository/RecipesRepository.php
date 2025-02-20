@@ -36,13 +36,13 @@ class RecipesRepository extends ServiceEntityRepository
 //        ;
 //    }
 
-//    public function findOneBySomeField($value): ?Recipes
-//    {
-//        return $this->createQueryBuilder('r')
-//            ->andWhere('r.exampleField = :val')
-//            ->setParameter('val', $value)
-//            ->getQuery()
-//            ->getOneOrNullResult()
-//        ;
-//    }
+   public function findSearch(string $search): array
+   {
+       return $this->createQueryBuilder('r')
+           ->andWhere('r.title LIKE :val')
+           ->setParameter('val','%'.$search.'%')
+           ->getQuery()
+           ->getResult()
+       ;
+   }
 }

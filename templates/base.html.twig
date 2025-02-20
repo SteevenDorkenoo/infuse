@@ -22,6 +22,26 @@
             {{ encore_entry_script_tags('app') }}
         {% endblock %}
     </head>
+
+    {# header contenant la barre de navigation extends sur toute les pages #}
+    <header>
+        <nav class="navbar fs-6 border-2 border-bottom">
+            {# <div class="logo text-center">LOGO</div> #}
+            <a href="{{ path('all_recipes') }}" class="btn border">LOGO</a>
+
+            <form action="{{ path('all_recipes') }}">
+                <input name="search" type="search" placeholder="Recherche" class="searchbar rounded border">
+            </form>
+
+            <div class="div_user text-center d-flex justify-content-end">
+                <p style="margin: auto;">Nom utilisateur</p>
+                <div class="cadre_user rounded d-flex align-items-center justify-content-center">
+                    <a href=""><img src="image\person-fill.svg" class="i_user" alt=""></a>
+                </div>
+            </div>
+        </nav>
+    </header>
+
     <body>
         {% block body %}{% endblock %}
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
