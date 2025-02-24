@@ -12,6 +12,12 @@
         <input type="text" id="introduction" name="_introduction" value="{{recipe.introduction}}">
         <label for="portions">Portions</label>
         <input type="number" id="portions" name="_portions" value="{{recipe.portions}}" min="1" max="100">
+        
+
+        {% for step in steps %}
+        <label for="">étape {{step.rank}}</label>
+        <input type="text" name="_steps[]" value="{{step.content}}">
+        {% endfor %}
         <button type="submit">Enregistrer les modifications</button>
     </form>
 </div>

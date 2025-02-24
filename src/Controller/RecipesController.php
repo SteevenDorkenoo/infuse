@@ -10,11 +10,13 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Flex\Recipe;
 use App\Entity\Recipes;
 use App\Entity\Favorites;
+use App\Entity\Step;
 use App\Repository\RecipesRepository;
 use App\Repository\CommentsRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\EndorsementRepository;
 use App\Repository\FavoritesRepository;
+use App\Repository\StepRepository;
 
 class RecipesController extends AbstractController
 {
@@ -38,34 +40,46 @@ class RecipesController extends AbstractController
     }
 
     #[Route('/recipes/edit/{id}', name: 'edit_recipes',methods:['GET','POST'])]
-    public function editRecipes(Recipes $recipe, Request $request, EntityManagerInterface $em): Response
+    public function editRecipes(Recipes $recipe, Request $request, EntityManagerInterface $em, StepRepository $sr): Response
     {
-        $user = $this->getUser();
-        // $recipe = new Recipes();
-
         if($request->isMethod('POST'))
         {
             $recipe->setTitle($request->request->get("_title")); // Attribue le titre depuis la requête
             $recipe->setIntroduction($request->request->get("_introduction")); // Attribue le contenu depuis la requête
             $recipe->setPortions($request->request->get("_portions"));
+            
+            // $recipe = $em->getRepository(Recipes::class)->find($recipeId);
+            // $step = $recipe->setContent("_step",[]);
+            $steps = $request->request->get("_steps");
+            $steps_id = $sr->findBy(['recipe_id'=> $recipe]);
+            
+            
+            $i=0;
+            foreach($steps_id as $value)
+            {
+                $steps_id[$i]->setContent($steps[$i]);
+                $i++;
+            }
 
-            $em->persist($recipe); // Prépare l'entité $recipe à être sauvegardée dans la base de données
+            $em->persist($recipe, $steps_id); // Prépare l'entité $recipe et les étapes à être sauvegardée dans la base de données
             $em->flush(); // Sauvegarde réellement les données dans la base de données
             $this->addFlash('success',"La recette a bien été modifié");
             return $this->redirectToRoute('all_recipes');
         }
-        return $this->render('recipes/edit.html.twig',['recipe'=>$recipe]);
+        return $this->render('recipes/edit.html.twig',['recipe'=>$recipe,'steps'=>$recipe->getSteps()]);
     }
-    #[Route('/recipes/new', name: 'new_recipe', methods: ['GET', 'POST'])]
-    public function createRecipes(Request $request, EntityManagerInterface $em, CategoryRepository $cr): Response
-    {
 
+    
+
+    #[Route('/recipes/new', name: 'new_recipe', methods: ['GET', 'POST'])]
+    public function createRecipes(Request $request, EntityManagerInterface $em, CategoryRepository $cr,): Response
+    {
+        
         $categories = $cr->findAll();
         $recipe = new Recipes();
-        
         // if($form->isSubmitted() && $form->isValid()){
         if ($request->isMethod('POST')) { // Si la méthode de la requête est POST (c'est-à-dire que le formulaire a été soumis)
-        
+            
             // On récupère les données soumises dans le formulaire et on les attribue à l'entité
             $recipe->setTitle($request->request->get("_title")); // Attribue le titre depuis la requête
             $recipe->setImage($request->request->get("_image"));
@@ -89,14 +103,37 @@ class RecipesController extends AbstractController
                 // Attribue l'entité categorie a la variable recipe
                 $recipe->addCategory($categorie);
             }
+        
+            
+            //création des étapes
             
             $em->persist($recipe); // Prépare l'entité $recipe à être sauvegardée dans la base de données
             $em->flush(); // Sauvegarde réellement les données dans la base de données
+
+            $array = $request->request->get('_steps',[]);
+
+            $j = 1;
+            for($i = 0; $i < 20 ; $i++)
+            {
+                if($array[$i] != null)
+                {
+                    $step = New Step();
+                    $step -> setRecipeId($recipe);
+                    $step -> setContent($array[$i]);
+                    $step -> setRank($j);
+
+                    $em->persist($step);
+                    $em->flush();
+                    $j++;
+                }
+            }
+
             $this->addFlash('success',"La recette a bien été crée");
             return $this->redirectToRoute('new_recipe');
         }
         return $this->render('recipes/new.html.twig',['categories' => $categories]);
     }
+    
 
     #[Route('/recipes/delete/{id}', name:  'recipe_delete', methods: ['POST','GET'])] // La route '/{id}/delete' permet de supprimer une recette
     public function delete(Recipes $recipe, EntityManagerInterface $em): Response // La méthode delete() permet de supprimer une recette existante
@@ -108,7 +145,7 @@ class RecipesController extends AbstractController
     }
 
     #[Route('/recipes/{id}', name: 'recipe_show', methods:'GET')]
-    public function show(Recipes $recipe,CommentsRepository $commentaireRepository, FavoritesRepository $fr,EndorsementRepository $er): Response
+    public function show(Recipes $recipe,CommentsRepository $commentaireRepository, FavoritesRepository $fr,EndorsementRepository $er,StepRepository $sr): Response
     {
 
         $recipeID = $recipe->getId(); // Récupérer l'ID de la catégorie depuis le formulaire
@@ -117,12 +154,17 @@ class RecipesController extends AbstractController
         $commentaires = $commentaireRepository->findBy(['recipe_id'=>$recipeID]);// Rechercher les commentaires correspondants
         $fav = $fr->findOneBy(['userId'=>$user,'recipeId'=>$recipeID]);// Recherche du favoris en fonction de la recette et l'utilisateur
         $endors = $er->findOneBy(['user_id'=> $user,'recipe_id'=> $recipeID]);//Recherche un vote sur l'article
+        $steps = $sr->findBy(['recipe_id'=> $recipe]);
+        
 
         return $this->render('recipes/show.html.twig',[
             'recipe' => $recipe,
             'commentaires' => $commentaires,
             'fav' => $fav,
-            'endors' => $endors
+            'endors' => $endors,
+            'steps' => $steps
         ]);
     }
+
+    
 }

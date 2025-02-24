@@ -6,26 +6,27 @@
 <style>
     .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
     .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
+
+    .step {
+        display: none;
+    }
+    #step1{
+        display: block;
+    }
+    .step:target {
+        display: block;
+    }
+
 </style>
 
 <div>
-    <form action="" method="post">
+    <form action="" method="post" id="form">
         <label for="title">Nom de la recette</label>
         <input type="text" id="title" name="_title" required>
         
         <label for="image">Ajouter une image</label>
         <input type="text" id="image" name="_image">
 
-        {# <label for="id_categorie">Catégorie(s)</label>
-        <select name="id_categorie" id="id_categorie" size="3" multiple>
-            <option value="">-- Toutes les catégories --</option>
-            {% for categorie in categories %}
-                <option value="{{ categorie.id }}">{{ categorie.name}}</option>
-            {% endfor %}
-
-
-        </select>
-         #}
          <div>
             {% for categorie in categories %}
             <input type="checkbox" name="id_categorie[]" id="{{ categorie.id }}" value="{{categorie.id}}">
@@ -40,6 +41,33 @@
 
         <label for="portions">Préciser le nombre de personnes ou de parts du plat</label>
         <input type="number" id="portions" name="_portions" min="1" max="100" required>
+
+        {# <div id="step1" class="step">
+            <label for="steps">Rédiger les étapes à suivre pour la préparation</label>
+            <input type="text" name="_steps">
+            <a href="#step2">Suivant</a>
+        </div> #}
+
+        {% for i in 0..19 %}  
+        
+        <div id="step{{i}}" class="step">
+            {% if i == 1 %}
+            <label for="">Rédiger les étapes à suivre pour la préparation</label>
+            {% endif %}
+
+            <label for="">Etape {{i}}</label>
+            <input type="text" id="_step{{i}}" name="_steps[]">
+
+            {% if i != 1 %}
+            <a href="#step{{i - 1}}">Précédent</a>
+            {% endif %}
+
+            {% if i != 21 %}
+            <a href="#step{{i + 1}}">Ajouter une étape</a>
+            {% endif %}
+        </div>
+
+        {% endfor %}
 
         <button type="submit">Enregistrer</button>
         

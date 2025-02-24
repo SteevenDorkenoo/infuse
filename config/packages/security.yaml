@@ -53,3 +53,6 @@ security:
 
         # Restreint l'accès à la page des utilisateurs (/users) uniquement aux utilisateurs complètement authentifiés
         - { path: ^/users, roles: PUBLIC_ACCESS }  # IS_AUTHENTICATED_FULLY L'accès à la page /users est restreint aux utilisateurs qui sont entièrement authentifiés
+        
+        # Restreint l'accès à l'API au administrateurs
+        - { path: ^/users, roles: ROLE_ADMIN }

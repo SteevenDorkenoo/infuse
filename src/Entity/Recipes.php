@@ -47,8 +47,8 @@ class Recipes
     #[ORM\OneToMany(mappedBy: 'recipe_id', targetEntity: Endorsement::class)]
     private Collection $endorsements;
 
-    #[ORM\Column(type: Types::TEXT, nullable: true)]
-    private ?string $steps = null;
+    #[ORM\OneToMany(mappedBy: 'recipe_id', targetEntity: Step::class)]
+    private Collection $steps;
 
     public function __construct()
     {
@@ -56,6 +56,7 @@ class Recipes
         $this->categories = new ArrayCollection();
         $this->favorites = new ArrayCollection();
         $this->endorsements = new ArrayCollection();
+        $this->steps = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -252,14 +253,32 @@ class Recipes
         return $this;
     }
 
-    public function getSteps(): ?string
+    /**
+     * @return Collection<int, Step>
+     */
+    public function getSteps(): Collection
     {
         return $this->steps;
     }
 
-    public function setSteps(?string $steps): static
+    public function addStep(Step $step): static
     {
-        $this->steps = $steps;
+        if (!$this->steps->contains($step)) {
+            $this->steps->add($step);
+            $step->setRecipeId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeStep(Step $step): static
+    {
+        if ($this->steps->removeElement($step)) {
+            // set the owning side to null (unless already changed)
+            if ($step->getRecipeId() === $this) {
+                $step->setRecipeId(null);
+            }
+        }
 
         return $this;
     }
