@@ -13,6 +13,8 @@
             <input type="contenu" id="contenu" name="contenu" class="form-control" required>
         </div>
 
+        <input type="hidden" name="_token" value="{{ csrf_token('new') }}">
+
         <button type="submit" class="btn btn-success mt-3">Enregistrer</button>
         <a href="{{ path('recipe_show',{ 'id': recipe.id}) }}" class="btn btn-secondary mt-3">Retour</a>
     </form>

@@ -12,8 +12,10 @@
             <input value="{{commentaire.content}}" type="contenu" id="contenu" name="contenu" class="form-control" required>
         </div>
 
-        <button type="submit" class="btn btn-secondary btn-sm">Enregistrer</button>
-        <a href="{{ path('recipe_show',{ 'id': recipe.id}) }}" class="btn btn-secondary mt-3">Retour</a>
+        <input type="hidden" name="_token" value="{{ csrf_token('edit') }}">
+
+        <button type="submit" class="btn btn-secondary btn-sm mt-3" onclick="return confirm('Êtes-vous sûr de vouloir modifier ce commentaire ?');">Enregistrer</button>
+        <a href="{{ path('recipe_show',{ 'id': recipe.id}) }}" class="btn btn-secondary btn-sm mt-3">Retour</a>
     </form>
 </div>
 {% endblock %}

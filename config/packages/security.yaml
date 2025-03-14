@@ -24,7 +24,7 @@ security:
             form_login:  # Authentification par formulaire
                 login_path: app_login  # La route pour afficher le formulaire de connexion
                 check_path: app_login  # La route où les informations de connexion sont envoyées via une requête POST
-                default_target_path: /recipes  # Après une connexion réussie, l'utilisateur est redirigé vers la page /users
+                default_target_path: /  # Après une connexion réussie, l'utilisateur est redirigé vers la page d'accueil
                 enable_csrf: true
             logout:  # Gestion de la déconnexion
                 path: app_logout  # La route pour se déconnecter
@@ -55,4 +55,4 @@ security:
         - { path: ^/users, roles: PUBLIC_ACCESS }  # IS_AUTHENTICATED_FULLY L'accès à la page /users est restreint aux utilisateurs qui sont entièrement authentifiés
         
         # Restreint l'accès à l'API au administrateurs
-        - { path: ^/users, roles: ROLE_ADMIN }
+        - { path: ^/api, roles: ROLE_ADMIN }

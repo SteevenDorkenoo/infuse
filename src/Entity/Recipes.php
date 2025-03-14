@@ -41,13 +41,13 @@ class Recipes
     #[ORM\ManyToMany(targetEntity: Category::class, mappedBy: 'recipe')]
     private Collection $categories;
 
-    #[ORM\OneToMany(mappedBy: 'recipeId', targetEntity: Favorites::class)]
+    #[ORM\OneToMany(mappedBy: 'recipeId', targetEntity: Favorites::class, orphanRemoval: true)]
     private Collection $favorites;
 
-    #[ORM\OneToMany(mappedBy: 'recipe_id', targetEntity: Endorsement::class)]
+    #[ORM\OneToMany(mappedBy: 'recipe_id', targetEntity: Endorsement::class, orphanRemoval: true)]
     private Collection $endorsements;
 
-    #[ORM\OneToMany(mappedBy: 'recipe_id', targetEntity: Step::class)]
+    #[ORM\OneToMany(mappedBy: 'recipe_id', targetEntity: Step::class,orphanRemoval: true)]
     private Collection $steps;
 
     public function __construct()

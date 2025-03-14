@@ -33,13 +33,13 @@ class User implements PasswordAuthenticatedUserInterface, UserInterface
     #[ORM\Column(type: 'json')]
     private array $roles = [];
 
-    #[ORM\OneToMany(mappedBy: 'user_id', targetEntity: Recipes::class)]
+    #[ORM\OneToMany(mappedBy: 'user_id', targetEntity: Recipes::class, orphanRemoval: true)]
     private Collection $recipes;
 
     #[ORM\OneToMany(mappedBy: 'user_id', targetEntity: Comments::class, orphanRemoval: true)]
     private Collection $comments;
 
-    #[ORM\OneToMany(mappedBy: 'userId', targetEntity: Favorites::class)]
+    #[ORM\OneToMany(mappedBy: 'userId', targetEntity: Favorites::class, orphanRemoval: true)]
     private Collection $favorites;
 
     #[ORM\OneToMany(mappedBy: 'user_id', targetEntity: Endorsement::class, orphanRemoval: true)]

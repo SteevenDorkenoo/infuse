@@ -26,6 +26,9 @@
                 <option value="ROLE_ADMIN" {% if app.request.get('role') == 'ROLE_ADMIN' %}selected{% endif %}>Administrateur</option>
             </select>
         </div>
+
+        <input type="hidden" name="_token" value="{{ csrf_token('new') }}">
+
         <button type="submit" class="btn btn-success mt-3">Enregistrer</button>
         <a href="{{ path('user_list') }}" class="btn btn-secondary mt-3">Retour</a>
     </form>

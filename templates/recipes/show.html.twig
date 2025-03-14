@@ -17,6 +17,7 @@
             </tr>
             <tr>
                 <form action="{{ path('endorsement_new',{ 'id': recipe.id}) }}" method="post">
+                    <input type="hidden" name="_token" value="{{ csrf_token('new_endors') }}">
                     {% if endors == null %}
                     <button type="submit" name="vote" value="{{true}}">Upvote</button>
                     {% elseif endors.vote == true %}
@@ -26,6 +27,7 @@
                     {% endif %}
                 </form>
                 <form action="{{ path('endorsement_new',{ 'id': recipe.id}) }}" method="post">
+                    <input type="hidden" name="_token" value="{{ csrf_token('new_endors') }}">
                     {% if endors == null %}
                     <button type="submit" name="vote" value="{{false}}">Downvote</button>
                     {% elseif endors.vote == false %}
@@ -34,6 +36,14 @@
                     <button type="submit" name="vote" value="{{false}}">Downvote</button>
                     {% endif %}
                 </form>
+            </tr>
+            <tr>
+                <th>
+                    image
+                </th>
+                <td>
+                    <img src="{{ asset('uploads/' ~ recipe.image) }}" alt="">
+                </td>
             </tr>
             <tr>
                 <th>Contenu</th>
@@ -59,11 +69,13 @@
 
     <div>    
         {% if fav is not null %}
-        <form action="{{ path('favorites_delete', {'id': recipe.id, 'fav': fav.id }) }}" method="post"> 
+        <form action="{{ path('favorites_delete', {'id': recipe.id, 'fav': fav.id }) }}" method="post">
+            <input type="hidden" name="_token" value="{{ csrf_token('del_fav') }}"> 
             <button type="submit" class="btn border">Déjà en favoris</button>
         </form>
         {% else %}
         <form action="{{ path('favorites_new', {'id' : recipe.id}) }}" method="post"> 
+            <input type="hidden" name="_token" value="{{ csrf_token('new_fav') }}">
             <button type="submit" class="btn border">Ajouter en favoris</button>
         </form>
         {% endif %}
@@ -84,7 +96,7 @@
                     {% if app.user and app.user.id == commentaire.UserId.id or is_granted('ROLE_ADMIN') %}
                     <form action="{{ path('commentaire_delete', {'recipe' : recipe.id ,'id': commentaire.id}) }}" method="post" style="display: inline;">
 
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ commentaire.id) }}">
+                        <input type="hidden" name="_token" value="{{ csrf_token('delete') }}">
                         <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?');">Supprimer</button>
         
                     </form>
@@ -102,5 +114,14 @@
          <a href="{{ path('commentaire_new',{ 'id': recipe.id}) }}">Ajouter commentaire</a>
     </div>
     <a href="{{ path('all_recipes') }}">Retour</a>
+
+    {% if app.user and app.user.id == recipe.UserId.id %}
+        
+    <form action="{{ path('recipe_delete',{ 'id': recipe.id}) }}" method="post">
+        <input type="hidden" name="_token" value="{{ csrf_token('delete_rec') }}">
+        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer cette recette ?');">Supprimer la recette</button>
+    </form>
+
+    {% endif %}
 
 {% endblock %}

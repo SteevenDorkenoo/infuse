@@ -1,0 +1,22 @@
+{% extends "base.html.twig" %}
+
+{% block title %}Hello RecipesController!{% endblock %}
+
+{% block body %}
+<h3>Paramètres utilisateur</h3>
+
+<div>
+    <a href="">Voir mes recettes</a>
+</div>
+
+<div>
+    <a href="">Voir mes favoris</a>
+</div>
+
+<div>
+    <a href="{{ path('user_edit_cla', {'id': app.user.id}) }}">Modifier mes informations utilisateur</a>
+</div>
+<div>
+    <a href="{{ path('app_logout')}}" onclick="return confirm('Êtes-vous sûr de vouloir vous déconnecter ?');">Se déconnecter</a>
+</div>
+{% endblock %}

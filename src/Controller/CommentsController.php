@@ -11,22 +11,21 @@ use Doctrine\ORM\EntityManagerInterface;
 use App\Entity\Recipes;
 use App\Entity\Comments;
 use App\Repository\CommentsRepository;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 
-#[Route('/recipes')]
 class CommentsController extends AbstractController
 {
 
-    #[Route( '{id}/commentaire/new',name: 'commentaire_new', methods: ['GET', 'POST'])]
-    public function new(Request $request, EntityManagerInterface $em, Recipes $recipe): Response
+    #[Route( '/recipes/{id}/commentaire/new',name: 'commentaire_new', methods: ['GET', 'POST'])]
+    public function new(Request $request, EntityManagerInterface $em, Recipes $recipe, ValidatorInterface $validator): Response
     {   
-        
-        if($request->isMethod('POST')){
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
 
-            
+        $submittedToken = $request->request->get('_token');
+
+        if($request->isMethod('POST') && $this->isCsrfTokenValid('new', $submittedToken)){
+
             $commentaire = new Comments(); // On crée une nouvelle instance de l'entité commentaire
-
-            // On récupère les données soumises dans le formulaire et on les attribue à l'entité $commentaire
-            // $commentaire->setIdRecipes($request->request->get('recipe'));
 
             $commentaire->setUserId($this->getUser()); // Attribue le titre depuis la requête
 
@@ -35,6 +34,17 @@ class CommentsController extends AbstractController
             $commentaire->setDate(new \DateTime('now'));// Attribue la date actuel 
             
             $em->persist($commentaire); // Prépare l'entité $commentaire à être sauvegardée dans la base de données
+
+            $errors = $validator->validate([$commentaire]);
+
+            if(count($errors) > 0)
+            {
+                $this->addFlash('error',"erreur d'informations formulaire");
+                return $this->redirectToRoute('recipe_show', [
+                    'id'=> $recipe->getId()
+                ]);
+            }
+
             $em->flush(); // Sauvegarde réellement les données dans la base de données
             
             return $this->redirectToRoute('recipe_show', [
@@ -49,21 +59,30 @@ class CommentsController extends AbstractController
 
 
 
-    #[Route('{id}/edit/{com}', name: 'commentaire_edit', methods: ['GET', 'POST'])]
-    public function edit($com,Request $request,CommentsRepository $commentaireRepository, EntityManagerInterface $em,Recipes $recipe): Response
+    #[Route('/recipes/{id}/edit/{com}', name: 'commentaire_edit', methods: ['GET', 'POST'])]
+    public function edit($com,Request $request,CommentsRepository $commentaireRepository, EntityManagerInterface $em,Recipes $recipe, ValidatorInterface $validator): Response
     {
-       
-        // $commentaires = $commentaireRepository -> findAll();
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $commentaire = $commentaireRepository->find($com);
         
-        if($request->isMethod('POST')){
+        $submittedToken = $request->request->get('_token');
+
+        if($request->isMethod('POST') && $this->isCsrfTokenValid('edit', $submittedToken)){
 
             // On récupère les données soumises dans le formulaire et on les attribue à l'entité $commentaire
-            // $commentaire->setRecipeId($request->request->get('recipe'));
-
             $commentaire->setContent($request->request->get('contenu')); // Attribue le contunu depuis la requête        
             
             $em->persist($commentaire); // Prépare l'entité $commentaire à être sauvegardée dans la base de données
+
+            $errors = $validator->validate([$commentaire]);
+            if(count($errors) > 0)
+            {
+                $this->addFlash('error',"erreur d'informations formulaire");
+                return $this->redirectToRoute('recipe_show', [
+                    'id'=> $recipe->getId()
+                ]);
+            }
+            
             $em->flush(); // Sauvegarde réellement les données dans la base de données
             
             return $this->redirectToRoute('recipe_show', [
@@ -77,21 +96,25 @@ class CommentsController extends AbstractController
         ]);
     }
 
-    
-    #[Route('/{recipe}/commentaire/delete/{id}',name: 'commentaire_delete', methods: ['POST'])]
-    public function delete($recipe,Comments $commentaire , EntityManagerInterface $entityManager): Response 
-    {       
+    #[Route('/recipes/{recipe}/commentaire/delete/{id}',name: 'commentaire_delete', methods: ['POST'])]
+    public function delete($recipe,Comments $commentaire , EntityManagerInterface $entityManager, Request $request): Response 
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+
+        $submittedToken = $request->request->get('_token');
+        if ($this->isCsrfTokenValid('delete', $submittedToken))
+        {
             $entityManager->remove($commentaire);
             $entityManager->flush();
-            return $this->redirectToRoute('recipe_show', [
-                'id'=> $recipe
-            ], Response::HTTP_SEE_OTHER);
-
+        }
+        return $this->redirectToRoute('recipe_show', [
+            'id'=> $recipe
+        ], Response::HTTP_SEE_OTHER);
     }
 
     // API
 
-    #[Route('api/commentaires/{id}',name: 'api_commentaire_delete', methods: ['DELETE'])]
+    #[Route('api/commentaires/{id}/delete',name: 'api_commentaire_delete', methods: ['DELETE'])]
     public function delete_api(Comments $commentaire , EntityManagerInterface $entityManager): Response 
     {       
             $entityManager->remove($commentaire);
@@ -109,8 +132,8 @@ class CommentsController extends AbstractController
         $data = array_map(function (Comments $commentaire) {
             return [
                 'id' => $commentaire->getId(),
-                'user_id_id' => $commentaire-> getUserId(),
-                'recipe_id_id' => $commentaire->getRecipeId(),
+                'user_id' => $commentaire-> getUserId(),
+                'recipe_id' => $commentaire->getRecipeId(),
                 'contenu' => $commentaire->getContent(),
             ];
             }, $commentaires);

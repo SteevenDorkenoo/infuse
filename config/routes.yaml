@@ -15,7 +15,7 @@ user_show:
 user_create:
   path: /api/users/new
   controller: App\Controller\UserController::create
-  methods: [POST],[GET]
+  methods: [POST]
 # Route pour mettre à jour un utilisateur
 user_update:
   path: /api/users/{id}
@@ -23,6 +23,6 @@ user_update:
   methods: [PUT]
 # Route pour supprimer un utilisateur
 user_delete:
-  path: /api/users/{id}
+  path: /api/users/{id}/delete
   controller: App\Controller\UserController::delete
-  methods: [DELETE]
+  methods: [DELETE,GET]

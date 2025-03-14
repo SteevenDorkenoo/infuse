@@ -13,9 +13,7 @@ class UserTest extends TestCase
         $user->setUsername('toto');
         $this->assertSame('toto', $user->getUsername());
     }
-
-
-    
+  
     // public function testsetUsername(): void
     // {
     //     $user = new User;

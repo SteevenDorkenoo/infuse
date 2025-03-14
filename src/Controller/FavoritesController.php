@@ -29,7 +29,9 @@ class FavoritesController extends AbstractController
     public function fav_new(Request $request, EntityManagerInterface $em, Recipes $recipe): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if($request->isMethod('POST'))
+        $submittedToken = $request->request->get('_token');
+
+        if($request->isMethod('POST') && $this->isCsrfTokenValid('new_fav', $submittedToken))
         {
             $fav = new Favorites;
             $fav->setDate(new \DateTime('now'));
@@ -46,7 +48,9 @@ class FavoritesController extends AbstractController
     public function fav_delete($id,Favorites $fav,Request $request, EntityManagerInterface $em): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
-        if($request->isMethod('POST'))
+        $submittedToken = $request->request->get('_token');
+
+        if($request->isMethod('POST') && $this->isCsrfTokenValid('del_fav', $submittedToken))
         {
             $em->remove($fav); // Supprime une recette de la base de données
             $em->flush(); // Sauvegarde la suppression dans la base de données

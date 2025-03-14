@@ -20,20 +20,20 @@
 </style>
 
 <div>
-    <form action="" method="post" id="form">
+    <form action="" method="post" id="form" enctype="multipart/form-data">
         <label for="title">Nom de la recette</label>
         <input type="text" id="title" name="_title" required>
         
         <label for="image">Ajouter une image</label>
-        <input type="text" id="image" name="_image">
+        <input type="file" name="image_" id="image_" accept="image/png, image/jpeg">
 
-         <div>
+        <div>
             {% for categorie in categories %}
             <input type="checkbox" name="id_categorie[]" id="{{ categorie.id }}" value="{{categorie.id}}">
-            <label for="{{ categorie.name}}">{{categorie.name}}</label>
+            <label for="{{categorie.name}}">{{categorie.name}}</label>
             <br>
             {% endfor %}
-         </div>
+        </div>
 
 
         <label for="introduction">écrire une introduction</label>
@@ -68,6 +68,8 @@
         </div>
 
         {% endfor %}
+
+        <input type="hidden" name="_token" value="{{ csrf_token('new') }}">
 
         <button type="submit">Enregistrer</button>
         

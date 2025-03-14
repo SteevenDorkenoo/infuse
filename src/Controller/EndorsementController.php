@@ -32,7 +32,9 @@ class EndorsementController extends AbstractController
         $dupes = $er->findOneBy(['user_id'=> $user,'recipe_id'=> $recipe]); //Cherche un doublon en base
         $recipeId = $recipe->getId();
         
-        if($request->isMethod('POST'))
+        $submittedToken = $request->request->get('_token');
+
+        if($request->isMethod('POST') && $this->isCsrfTokenValid('new_endors', $submittedToken))
         {
             $endors = new Endorsement();
             $vote = $request->request->get("vote");
