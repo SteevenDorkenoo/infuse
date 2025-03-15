@@ -50,6 +50,9 @@
         "twig/twig": "^2.12|^3.0"
     },
     "config": {
+        "platform": {
+            "php": "8.0.0"
+        },
         "allow-plugins": {
             "composer/package-versions-deprecated": true,
             "php-http/discovery": true,
