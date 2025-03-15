@@ -14,7 +14,7 @@
             <input type="email" id="email" name="email" class="form-control" value="{{ user.email }}" required>
         </div>
 
-        {% if 'ROLE_ADMIN' in user.roles %}
+        {% if 'ROLE_ADMIN' in app.user.roles %}
         <div class="form-group mt-3">
             <label for="roles">Rôles</label>
             <select name="role" id="role">

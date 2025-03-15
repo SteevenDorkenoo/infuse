@@ -9,7 +9,7 @@ when@dev:
                 type: stream
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
                 level: debug
-                channels: ["!event"]
+                channels: ["!event","!deprecation"]
             # uncomment to get logging in your browser
             # you may have to allow bigger header sizes in your Web server configuration
             #firephp:
@@ -21,7 +21,7 @@ when@dev:
             console:
                 type: console
                 process_psr_3_messages: false
-                channels: ["!event", "!doctrine", "!console"]
+                channels: ["!event", "!doctrine", "!console","!deprecation"]
 
 when@test:
     monolog:
@@ -31,7 +31,7 @@ when@test:
                 action_level: error
                 handler: nested
                 excluded_http_codes: [404, 405]
-                channels: ["!event"]
+                channels: ["!event","!deprecation"]
             nested:
                 type: stream
                 path: "%kernel.logs_dir%/%kernel.environment%.log"
@@ -46,6 +46,7 @@ when@prod:
                 handler: nested
                 excluded_http_codes: [404, 405]
                 buffer_size: 50 # How many messages should be saved? Prevent memory leaks
+                channels: ["!event", "!deprecation"]
             nested:
                 type: stream
                 path: php://stderr
@@ -55,8 +56,9 @@ when@prod:
                 type: console
                 process_psr_3_messages: false
                 channels: ["!event", "!doctrine"]
-            deprecation:
-                type: stream
-                channels: [deprecation]
-                path: php://stderr
-                formatter: monolog.formatter.json
+            # deprecation:
+            #     type: stream
+            #     level: emergency
+            #     channels: [deprecation]
+            #     path: php://stderr
+            #     formatter: monolog.formatter.json
