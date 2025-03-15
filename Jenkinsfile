@@ -18,7 +18,7 @@ pipeline {
         stage('Installation des dépendances') {
             steps {
                 dir("${DEPLOY_DIR}") {
-                    sh 'composer install --optimize-autoloader'
+                    sh 'composer install --optimize-autoloader --ignore-platform-req=php'
                 }
             }
         }
