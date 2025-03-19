@@ -1,40 +1,43 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-<div class="container mt-5">
-    <h1>Ajouter un utilisateur</h1>
-    <form method="post" class="mt-4">
-        <div class="form-group">
-            <label for="name">Nom</label>
-            <input type="text" id="name" name="name" class="form-control" required>
-        </div>
-        <div class="form-group mt-3">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" class="form-control" required>
-        </div>
-        <div class="form-group mt-3">
-            <label for="password">Password</label>
-            <input type="password" id="password" name="password" 
-            class="form-control" pattern="[A-Za-z\d\W]{12,}"
-            title="Minimum 12 caractères contenant : minuscule, majuscule, caractère spéciale et chiffre"
-            required>
-        </div>
-        {% if app.user %}
-            {% if 'ROLE_ADMIN' in app.user.roles %}
+
+<main class="shadow rounded-4 container-lg">
+    <div class="container mt-5">
+        <h1>Ajouter un utilisateur</h1>
+        <form method="post" class="mt-4">
+            <div class="form-group">
+                <label for="name">Nom</label>
+                <input type="text" id="name" name="name" class="form-control" required>
+            </div>
             <div class="form-group mt-3">
-                <label for="roles">Rôles</label>
-                <select name="role" id="role">
-                    <option value="ROLE_USER" {% if app.request.get('role') == 'ROLE_USER' %}selected{% endif %}>Utilisateur</option>
-                    <option value="ROLE_ADMIN" {% if app.request.get('role') == 'ROLE_ADMIN' %}selected{% endif %}>Administrateur</option>
-                </select>
-            </div> 
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-control" required>
+            </div>
+            <div class="form-group mt-3">
+                <label for="password">Password</label>
+                <input type="password" id="password" name="password" 
+                class="form-control" pattern="[A-Za-z\d\W]{12,}"
+                title="Minimum 12 caractères contenant : minuscule, majuscule, caractère spéciale et chiffre"
+                required>
+            </div>
+            {% if app.user %}
+                {% if 'ROLE_ADMIN' in app.user.roles %}
+                <div class="form-group mt-3">
+                    <label for="roles">Rôles</label>
+                    <select name="role" id="role">
+                        <option value="ROLE_USER" {% if app.request.get('role') == 'ROLE_USER' %}selected{% endif %}>Utilisateur</option>
+                        <option value="ROLE_ADMIN" {% if app.request.get('role') == 'ROLE_ADMIN' %}selected{% endif %}>Administrateur</option>
+                    </select>
+                </div> 
+                {% endif %}
             {% endif %}
-        {% endif %}
-
-        <input type="hidden" name="_token" value="{{ csrf_token('new') }}">
-
-        <button type="submit" class="btn btn-success mt-3">Enregistrer</button>
-        <a href="{{ path('user_list') }}" class="btn btn-secondary mt-3">Retour</a>
-    </form>
-</div>
+    
+            <input type="hidden" name="_token" value="{{ csrf_token('new') }}">
+    
+            <button type="submit" class="btn btn-success mt-3">Enregistrer</button>
+            <a href="{{ path('user_list') }}" class="btn btn-secondary mt-3">Retour</a>
+        </form>
+    </div>
+</main>
 {% endblock %}

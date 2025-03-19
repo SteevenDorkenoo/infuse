@@ -19,6 +19,9 @@
         <a href="{{ path('user_edit_cla', {'id': app.user.id}) }}" class="link-underline link-underline-opacity-0">Modifier mes informations utilisateur</a>
     </div>
     <div>
+        <a href="{{path('templates/mentions.html.twig')}}">Mentions Légales</a>
+    </div>
+    <div>
         <a href="{{ path('app_logout')}}" onclick="return confirm('Êtes-vous sûr de vouloir vous déconnecter ?');" class="link-underline link-underline-opacity-0">Se déconnecter</a>
     </div>
 </main>

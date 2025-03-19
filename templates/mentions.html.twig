@@ -1,24 +1,57 @@
-{% extends "base.html.twig" %}
 
-{% block title %}Hello RecipesController!{% endblock %}
+{% extends 'base.html.twig' %}
+
+{% block title %}Mentions Légales{% endblock %}
 
 {% block body %}
-Mentions Légales
-1. Éditeur du site
+<main class="shadow rounded-2 container-lg">
+    <h1>Mentions Légales</h1>
+    <p>Merci de lire attentivement les présentes mentions légales.</p>
 
-Ce site est un projet étudiant réalisé dans le cadre d'un projet de formation de conception et de developpemnt des applications .
-Contact : steeven.dorkenoo@gmail.com
-2. Hébergement
+    <h2>Éditeur du site</h2>
+    <p>
+        Ce site est édité par Steeven Dorkenoo, domicilié au 94440.<br>
+        Adresse e-mail : <a href="steeven.dorkenoo@gmail.com">steeven.dorkenoo@gmail.com</a>.
+    </p>
 
-Le site est hébergé par Microsoft Azure.
-Adresse de l’hébergeur : 37 Quai du Président Roosevelt, 92130 Issy-les-Moulineaux
-3. Propriété intellectuelle
+    <h2>Hébergement</h2>
+    <p>
+        Le site est hébergé par Microsoft Azure.
+        Adresse de l’hébergeur : 37 Quai du Président Roosevelt, 92130 Issy-les-Moulineaux
+        3. Propriété intellectuelle
+    </p>
 
-Tous les contenus présents sur ce site (textes, images, etc.) sont la propriété de leurs auteurs respectifs. Toute reproduction sans autorisation est interdite.
-4. Protection des données personnelles
+    <h2>Données personnelles</h2>
+    <p>
+        Conformément à la loi n°78-17 du 6 janvier 1978 relative à l'informatique, aux fichiers et aux libertés,
+        vous disposez d'un droit d'accès, de modification, de rectification et de suppression des données qui vous concernent.
+        Pour exercer ce droit, vous pouvez nous contacter à l'adresse suivante : <a href="mailto:steeven.dorkenoo@gmail.com">steeven.dorkenoo@gmail.com</a>.
+    </p>
+    <p>
+        Les informations recueillies sur ce site sont enregistrées dans un fichier informatisé par Steeven Dorkenoo
+        pour la gestion de notre clientèle et le suivi des inscriptions.
+    </p>
+    <p>
+        Nous ne collectons que votre adresse e-mail lors de votre inscription. Ces données ne seront pas communiquées à des tiers.
+    </p>
 
-Aucune donnée personnelle n'est collectée sans votre consentement. Pour toute question, contactez-nous à steeven.dorkenoo@gmail.com.
-5. Cookies
+    <h2>Cookies</h2>
+    <p>
+        Ce site utilise des cookies pour améliorer votre expérience utilisateur. En continuant à naviguer sur ce site,
+        vous acceptez l'utilisation de ces cookies. Vous pouvez désactiver les cookies en modifiant les paramètres de votre navigateur.
+    </p>
 
-Ce site utilise des cookies pour améliorer l'expérience utilisateur. Vous pouvez les désactiver dans les paramètres de votre navigateur.
+    <h2>Propriété intellectuelle</h2>
+    <p>
+        Tous les contenus présents sur ce site (textes, images, vidéos, etc.) sont la propriété exclusive de [Votre Nom]
+        et sont protégés par les lois en vigueur sur la propriété intellectuelle. Toute reproduction, même partielle,
+        sans autorisation préalable est strictement interdite.
+    </p>
+
+    <h2>Responsabilité</h2>
+    <p>
+        Steeven Dorkenoo ne peut être tenu responsable des éventuels dysfonctionnements du site ou des interruptions de service.
+        Les informations présentes sur ce site sont fournies à titre indicatif et ne sauraient engager la responsabilité de [Votre Nom].
+    </p>
+</main>
 {% endblock %}
