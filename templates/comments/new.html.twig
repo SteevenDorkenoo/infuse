@@ -3,20 +3,22 @@
 {% block title %}Nouveau Commentaire{% endblock %}
 
 {% block body %}
-
-<div class="container mt-5">
-    <h1>Ajouter un commentaire</h1>
-    <form method="post" class="mt-4">
-
-        <div class="form-group mt-3">
-            <label for="contenu">Contenu</label>
-            <input type="contenu" id="contenu" name="contenu" class="form-control" required>
-        </div>
-
-        <input type="hidden" name="_token" value="{{ csrf_token('new') }}">
-
-        <button type="submit" class="btn btn-success mt-3">Enregistrer</button>
-        <a href="{{ path('recipe_show',{ 'id': recipe.id}) }}" class="btn btn-secondary mt-3">Retour</a>
-    </form>
-</div>
+<main class="shadow rounded-4 container-lg">
+    <div class="container mt-5">
+        <h1>Ajouter un commentaire</h1>
+        <form method="post" class="mt-4">
+    
+            <div class="form-group mt-3">
+                <label for="contenu">Contenu</label>
+                {# <input type="contenu" id="contenu" name="contenu" class="form-control" required> #}
+                <textarea id="contenu" name="contenu" class="form-control" required></textarea>
+            </div>
+    
+            <input type="hidden" name="_token" value="{{ csrf_token('new') }}">
+    
+            <button type="submit" class="btn btn-success mt-3">Enregistrer</button>
+            <a href="{{ path('recipe_show',{ 'id': recipe.id}) }}" class="btn btn-secondary mt-3">Retour</a>
+        </form>
+    </div>
+</main>
 {% endblock %}

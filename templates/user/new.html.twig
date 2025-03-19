@@ -19,14 +19,16 @@
             title="Minimum 12 caractères contenant : minuscule, majuscule, caractère spéciale et chiffre"
             required>
         </div>
-        {% if 'ROLE_ADMIN' in app.user.roles %}
+        {% if app.user %}
+            {% if 'ROLE_ADMIN' in app.user.roles %}
             <div class="form-group mt-3">
                 <label for="roles">Rôles</label>
                 <select name="role" id="role">
                     <option value="ROLE_USER" {% if app.request.get('role') == 'ROLE_USER' %}selected{% endif %}>Utilisateur</option>
                     <option value="ROLE_ADMIN" {% if app.request.get('role') == 'ROLE_ADMIN' %}selected{% endif %}>Administrateur</option>
                 </select>
-            </div>
+            </div> 
+            {% endif %}
         {% endif %}
 
         <input type="hidden" name="_token" value="{{ csrf_token('new') }}">

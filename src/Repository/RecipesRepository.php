@@ -36,6 +36,17 @@ class RecipesRepository extends ServiceEntityRepository
 //        ;
 //    }
 
+    public function findRecipesByFavoriteUserId(int $userId): array
+    {
+        return $this->createQueryBuilder('r')
+            ->innerJoin('r.favorites', 'f')
+            ->andWhere('f.userId = :userId')
+            ->setParameter('userId', $userId)
+            ->orderBy('r.date', 'DESC')
+            ->getQuery()
+            ->getResult();
+    }
+
    public function findSearch(string $search): array
    {
        return $this->createQueryBuilder('r')

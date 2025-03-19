@@ -1,20 +1,131 @@
 {% extends 'base.html.twig' %}
 
-{% block title %}Hello RecipesController!{% endblock %}
+{% block title %}Page d'accueil{% endblock %}
 
 {% block body %}
 
-<h1>Liste des recettes</h1>
+<style>
+    .post{
+        background-color: white;
+        border-radius: 8px;
+        width: 380px;
+        height: 470px;
+    }
 
-<div>
+    .titre{
+        font-size: x-large;
+        padding: 5%;
+        height: 110px;
+    }
+
+    /*POSTS BUTTONS*/
+    .buttons{
+        padding-top: 5%;
+        padding-bottom: 5%;
+    }
+    
+    
+    
+    .score{
+        font-size: large;
+        margin: auto;
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+    .vote > *{
+        width: 40px;
+    }
+    
+    .downvote{
+        transform: rotate(180deg);;
+    }
+    
+    .comm{
+        width: 55px;
+    }
+    
+    .comm :hover{
+        background-color: var(--myblack);
+        opacity: 10%;
+    }
+    
+    button{
+        transition-duration: 0.4s;
+        cursor: pointer;
+        border: none;
+    }
+    
+    .b_downvote,.b_upvote{
+        background-color: transparent;
+        padding: 10px;
+        border-radius: 15px;
+    }
+    
+    .b_downvote:hover{
+        background-color: blue;
+        opacity: 20%;
+    }
+    
+    .b_upvote:hover{
+        background-color: red;
+        opacity: 20%;
+    }
+
+    .cadre{
+        object-fit:cover;
+        width: 100%;
+        height: 250px;
+    }
+</style>
+
+<h1 class="text-center">Liste des recettes</h1>
+
+<div class="overflow-auto h-10 d-flex justify-content-evenly m-3">
     {% for categorie in categories %}
-    <form action="{{ path('category_show', {'id': categorie.id}) }}" method="post"> 
-        <button type="submit" value="{{categorie.id}}"class="btn border">{{categorie.name}}</button>
+    <form action="{{ path('category_show', {'id': categorie.id}) }}" method="post">
+        <button type="submit" value="{{ categorie.id }}" class="btn border bg-white">{{ categorie.name }}</button>
     </form>
     {% endfor %}
 </div>
 
-<div>
+<section class="row gap-3 text-center justify-content-around">
+    {% for item in recipesWithVotes %}
+    <section class="post shadow border rounded">
+        <div class="titre text-wrap overflow-hidden">{{ item.recipe.title }}</div>
+
+        <a href="{{ path('recipe_show', {'id': item.recipe.id}) }}" class="">
+            {% if item.recipe.image is null %}
+            <img src="{{ asset('uploads/placeholder.jpg') }}" class="cadre rounded" alt="Image de la recette">
+            {% else %}
+            <img src="{{ asset('uploads/' ~ item.recipe.image) }}" class="cadre rounded" alt="{{ item.recipe.image }}">
+            {% endif %}
+        </a>
+
+        <div class="buttons d-flex justify-content-between align-items-center">
+            <div class="hider border border-2 rounded-4 d-flex justify-content-between overflow-hidden">
+                <form action="{{ path('endorsement_new',{ 'id': item.recipe.id}) }}" method="post">
+                    <input type="hidden" name="_token" value="{{ csrf_token('new_endors') }}">
+                    <button type="submit" name="vote" class="vote b_upvote" value="true"><img src="{{ asset('uploads/chevron-double-up.svg') }}" class="upvote" alt="upvote"></button>
+                </form>
+                
+                <p class="score">{{ item.voteDifference }}</p>
+
+                <form action="{{ path('endorsement_new',{ 'id': item.recipe.id}) }}" method="post">
+                    <input type="hidden" name="_token" value="{{ csrf_token('new_endors') }}">
+                    <button type="submit" name="vote" class="vote b_downvote" value="false"><img src="{{ asset('uploads/chevron-double-up.svg') }}" class="downvote" alt="downvote"></button>
+                </form>
+                
+            </div>
+
+            <a href="" class="a_comm"><img src="{{ asset('uploads/comments-regular.svg') }}" class="comm" alt="commentaire"></a>
+        </div>
+    </section>
+    {% endfor %}
+</section>
+
+
+
+{# <div>
     <ul>
         {% for recipe in recipes %}
         <li>
@@ -22,5 +133,5 @@
         </li>
         {% endfor %}
     </ul>
-</div>
+</div> #}
 {% endblock %}

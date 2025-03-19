@@ -1,39 +1,41 @@
 {% extends 'base.html.twig' %}
 
 {% block body %}
-<div class="container mt-5">
-    <h1>Modifier l'utilisateur</h1>
-    <form method="post" class="mt-4">
+<main class="shadow rounded-2 container-lg">
+    <div class="container mt-5">
+        <h1>Modifier l'utilisateur</h1>
+        <form method="post" class="mt-4">
 
-        <div class="form-group">
-            <label for="name">Nom</label>
-            <input type="text" id="name" name="name" class="form-control" value="{{ user.username }}" required>
-        </div>
-        <div class="form-group mt-3">
-            <label for="email">Email</label>
-            <input type="email" id="email" name="email" class="form-control" value="{{ user.email }}" required>
-        </div>
+            <div class="form-group">
+                <label for="name">Nom</label>
+                <input type="text" id="name" name="name" class="form-control" value="{{ user.username }}" required>
+            </div>
+            <div class="form-group mt-3">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-control" value="{{ user.email }}" required>
+            </div>
 
-        {% if 'ROLE_ADMIN' in app.user.roles %}
-        <div class="form-group mt-3">
-            <label for="roles">Rôles</label>
-            <select name="role" id="role">
-                <option value="ROLE_USER" {% if 'ROLE_USER' in user.roles %}selected{% endif %}>Utilisateur</option>
-                <option value="ROLE_ADMIN" {% if 'ROLE_ADMIN' in user.roles %}selected{% endif %}>Administrateur</option>
-            </select>
-        </div>
-        {% endif %}
+            {% if 'ROLE_ADMIN' in app.user.roles %}
+            <div class="form-group mt-3">
+                <label for="roles">Rôles</label>
+                <select name="role" id="role">
+                    <option value="ROLE_USER" {% if 'ROLE_USER' in user.roles %}selected{% endif %}>Utilisateur</option>
+                    <option value="ROLE_ADMIN" {% if 'ROLE_ADMIN' in user.roles %}selected{% endif %}>Administrateur</option>
+                </select>
+            </div>
+            {% endif %}
 
-        <input type="hidden" name="_token" value="{{ csrf_token('edit') }}">
+            <input type="hidden" name="_token" value="{{ csrf_token('edit') }}">
 
-        <button type="submit" class="btn btn-primary mt-3" onclick="return confirm('Êtes-vous sûr de vouloir modifier vos informations ?');">Enregistrer</button>
-        <a href="{{ path('parameters', {'id': app.user.id}) }}" class="btn btn-secondary mt-3">Retour</a>
+            <button type="submit" class="btn btn-primary mt-3" onclick="return confirm('Êtes-vous sûr de vouloir modifier vos informations ?');">Enregistrer</button>
+            <a href="{{ path('parameters', {'id': app.user.id}) }}" class="btn btn-secondary mt-3">Retour</a>
 
-    </form>
+        </form>
 
-    <form action="{{ path('user_delete_cla', {'id': app.user.id}) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimmer votre compte ? Toutes vos informations seront définitivement perdus');" method="post" class="mt-4">
-        <input type="hidden" name="_token" value="{{ csrf_token('delete') }}">
-        <button type="submit"  class="btn btn-danger mt-3" >Supprimer le compte</button>
-    </form>
-</div>
+        <form action="{{ path('user_delete_cla', {'id': app.user.id}) }}" onclick="return confirm('Êtes-vous sûr de vouloir supprimmer votre compte ? Toutes vos informations seront définitivement perdus');" method="post" class="mt-4">
+            <input type="hidden" name="_token" value="{{ csrf_token('delete') }}">
+            <button type="submit"  class="btn btn-danger mt-3" >Supprimer le compte</button>
+        </form>
+    </div>
+</main>
 {% endblock %}

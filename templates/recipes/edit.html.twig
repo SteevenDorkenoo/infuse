@@ -20,9 +20,46 @@
         
         <input type="hidden" name="_token" value="{{ csrf_token('edit') }}">
 
+        {% for ingr in recipe.ingredients %}
+        <div class="mt-3 mb-3">
+            <input type="text" name="_ingres[]" value="{{ingr.name}}">
+
+            <label for="quantite">Quantité</label>
+            <input type="number" name="_quantites[]" min="1" value="{{ingr.dose}}">
+
+            <label for="">Unité :</label>
+            {% if ingr.unit == 'nb' %}
+            <select name="_units[]">
+                <option selected="selected" value="nb">nombres</option>
+                <option value="cl">centilitres</option>
+                <option value="g">grammes</option>
+            </select>
+            {% endif %}
+
+            {% if ingr.unit == 'cl' %}
+            <select name="_units[]">
+                <option value="nb">nombres</option>
+                <option selected="selected" value="cl">centilitres</option>
+                <option value="g">grammes</option>
+            </select>
+            {% endif %}
+
+            {% if ingr.unit == 'g' %}
+            <select name="_units[]">
+                <option value="nb">nombres</option>
+                <option value="cl">centilitres</option>
+                <option selected="selected" value="g">grammes</option>
+            </select>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+
         {% for step in steps %}
-        <label for="">étape {{step.rank}}</label>
-        <input type="text" name="_steps[]" value="{{step.content}}">
+        <div class="mt-3 mb-3">
+            <label for="">étape {{step.rank}}</label>
+            <input type="text" name="_steps[]" value="{{step.content}}">    
+        </div>
         {% endfor %}
         <button type="submit">Enregistrer les modifications</button>
     </form>

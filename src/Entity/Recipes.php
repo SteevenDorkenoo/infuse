@@ -8,6 +8,8 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 
+#[ORM\Index(name: "id_idx", columns: ["id"])]
+#[ORM\Index(name: "title_idx", columns: ["title"])]
 #[ORM\Entity(repositoryClass: RecipesRepository::class)]
 class Recipes
 {
@@ -50,6 +52,9 @@ class Recipes
     #[ORM\OneToMany(mappedBy: 'recipe_id', targetEntity: Step::class,orphanRemoval: true)]
     private Collection $steps;
 
+    #[ORM\OneToMany(mappedBy: 'recipe_id', targetEntity: Ingredient::class,orphanRemoval: true)]
+    private Collection $ingredients;
+
     public function __construct()
     {
         $this->comments = new ArrayCollection();
@@ -57,6 +62,7 @@ class Recipes
         $this->favorites = new ArrayCollection();
         $this->endorsements = new ArrayCollection();
         $this->steps = new ArrayCollection();
+        $this->ingredients = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -277,6 +283,36 @@ class Recipes
             // set the owning side to null (unless already changed)
             if ($step->getRecipeId() === $this) {
                 $step->setRecipeId(null);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Collection<int, Ingredient>
+     */
+    public function getIngredients(): Collection
+    {
+        return $this->ingredients;
+    }
+
+    public function addIngredient(Ingredient $ingredient): static
+    {
+        if (!$this->ingredients->contains($ingredient)) {
+            $this->ingredients->add($ingredient);
+            $ingredient->setRecipeId($this);
+        }
+
+        return $this;
+    }
+
+    public function removeIngredient(Ingredient $ingredient): static
+    {
+        if ($this->ingredients->removeElement($ingredient)) {
+            // set the owning side to null (unless already changed)
+            if ($ingredient->getRecipeId() === $this) {
+                $ingredient->setRecipeId(null);
             }
         }
 

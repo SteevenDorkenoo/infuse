@@ -4,7 +4,8 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <meta >
+        
+        
         <title>{% block title %}Bienvenu sur Infuse{% endblock %}</title>
         <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>⚫️</text></svg>">
         
@@ -27,27 +28,66 @@
 
     {# header contenant la barre de navigation extends sur toutes les pages #}
     <header>
-        <nav class="navbar fs-6 border-2 border-bottom">
-            {# <div class="logo text-center">LOGO</div> #}
-            <a href="{{ path('all_recipes') }}" class="btn border">LOGO</a>
 
-            <form action="{{ path('all_recipes') }}">
-                <input name="search" type="search" placeholder="Recherche" class="searchbar rounded border">
-            </form>
+        <style>
 
-            <div class="div_user text-center d-flex justify-content-end">
+            body{
+                background-color: rgb(202, 19, 99);
+            }
+
+            .logo{
+                width: 90px;
+            }
+
+            h1{
+                text-align: center;
+            }
+
+            main{
+                width: 70%;
+                margin: auto;
+                background-color: white;
+                padding-inline: 70px;
+                padding-top: 20px;
+                padding-bottom: 50px;
+                margin-top: 20px;
+            }
+
+        </style>
+
+        <nav class="navbar border-2 border-bottom d-flex justify-content-between bg-white">
+            <div>
+                <a href="{{ path('all_recipes') }}" class="">
+                    <img src="{{ asset('uploads/Infuse_logo.png') }}" class="logo" alt="logo">
+                </a>
+            </div>
+
+
+            <div class="">
+                <form action="{{ path('all_recipes') }}" class="">
+                    <input name="search" type="search" placeholder="Recherche" class="searchbar rounded border">
+                </form>
+            </div>
+
+
+            <div class="">
 
                 {% if app.user %}
-                    <a href="{{ path('new_recipe') }}">Créer recette</a>
-                    {# <p style="margin: auto;">{{app.user.username}}</p> #}
-                    <a href="{{ path('parameters',{'id': app.user.id}) }}" style="margin: auto;">{{app.user.username}}</a>
+                    
+                    <a href="{{ path('new_recipe') }}" class=" m-1 link-underline-opacity-0 link-underline">Créer recette</a>
+                    
+                    {{app.user.username}}
+                    
+                    <a href="{{ path('parameters',{'id': app.user.id}) }}" class="m-2">
+                        <img class="border rounded" src="{{ asset('uploads/person-fill.svg') }}" class="" alt="" style="width: 50px">
+                    </a>
+
                     <div class="cadre_user rounded d-flex align-items-center justify-content-center">
-                        {# <a href=""><img src="image\person-fill.svg" class="i_user" alt=""></a> #}
+                        <a href=""></a>
                     </div>
                 {% else %}
-                    <a href="{{ path('app_login') }}">Connexion</a>
-                    <p>ou</p>
-                    <a href="{{ path('user_new_cla') }}">Créer un compte</a>
+                    <a href="{{ path('app_login') }}" class="link-underline-opacity-0 link-underline m-2">Connexion</a>
+                    <a href="{{ path('user_new_cla') }}" class="link-underline-opacity-0 link-underline m-2">Créer un compte</a>
                 {% endif %}
 
             </div>

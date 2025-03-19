@@ -4,9 +4,6 @@
 
 {% block body %}
 <style>
-    .example-wrapper { margin: 1em auto; max-width: 800px; width: 95%; font: 18px/1.5 sans-serif; }
-    .example-wrapper code { background: #F5F5F5; padding: 2px 6px; }
-
     .step {
         display: none;
     }
@@ -17,72 +14,114 @@
         display: block;
     }
 
+
+    .ingre {
+        display: none;
+    }
+    #ingre1{
+        display: block;
+    }
+    .ingre:target {
+        display: block;
+    }
 </style>
 
-<div>
-    <form action="" method="post" id="form" enctype="multipart/form-data">
-        <label for="title">Nom de la recette</label>
-        <input type="text" id="title" name="_title" required>
-        
-        <label for="image">Ajouter une image</label>
-        <input type="file" name="image_" id="image_" accept="image/png, image/jpeg">
-
-        <div>
-            {% for categorie in categories %}
-            <input type="checkbox" name="id_categorie[]" id="{{ categorie.id }}" value="{{categorie.id}}">
-            <label for="{{categorie.name}}">{{categorie.name}}</label>
-            <br>
+<main class="shadow rounded-4 container-lg">
+    <h1>Créer votre recette</h1>
+    <div>
+        <form action="" method="post" id="form" enctype="multipart/form-data" class="container">
+            <div class="form-group mt-3">
+                <label for="title">Nom de la recette</label>
+                <input type="text" class="form-control" id="title" name="_title" required>
+            </div>
+    
+            <div class="form-group mt-3">
+                <label for="image">Ajouter une image</label>
+                <input type="file" class="form-control" name="image_" id="image_" accept="image/png, image/jpeg">
+            </div>
+    
+    
+            <div class="form-group mt-3">
+                {% for categorie in categories %}
+                <input type="checkbox" name="id_categorie[]" id="{{ categorie.id }}" value="{{categorie.id}}">
+                <label for="{{categorie.name}}">{{categorie.name}}</label>
+                <br>
+                {% endfor %}
+            </div>
+    
+            <div class="form-group mt-3">
+                <label for="introduction">écrire une introduction</label>
+                {# <input type="text" id="introduction" name="_introduction"> #}
+                <textarea name="_introduction" class="form-control" id="introduction"></textarea>
+            </div>
+    
+            <divclass="form-group mt-3">
+                <label for="portions">Préciser le nombre de personnes ou de parts du plat</label>
+                <input type="number" class="form-control" id="portions" name="_portions" min="1" max="100" required>
+            </div>
+    
+            {% for k in 0..30 %}  
+            
+            <div id="ingre{{k}}" class="ingre mt-3 mb-3">
+                {% if k == 1 %}
+                <label for="">Donner la liste des ingrédients</label>
+                {% endif %}
+    
+                <label for="">Ingrédient {{k}}</label>
+                <input type="text" class="form-control" id="_ingre{{k}}" name="_ingres[]">
+    
+                <label for="quantite">Quantité</label>
+                <input type="number" id="quantite{{k}}" name="_quantites[]" min="1" value="1">
+    
+                <label for="">Unité :</label>
+                <select name="_units[]" id="unit{{k}}">
+                  <option value="nb">nombres</option>
+                  <option value="cl">centilitres</option>
+                  <option value="g">grammes</option>
+                </select>
+    
+                {% if k != 1 %}
+                <a href="#ingre{{k - 1}}">Précédent</a>
+                {% endif %}
+    
+                {% if k != 32 %}
+                <a href="#ingre{{k + 1}}">Ajouter un ingrédient</a>
+                {% endif %}
+            </div>
+    
             {% endfor %}
-        </div>
+            
+            <hr>
+
+            {% for i in 0..19 %}  
+            
+            <div id="step{{i}}" class="step mt-3 mb-3">
+                {% if i == 1 %}
+                <label for="">Rédiger les étapes à suivre pour la préparation</label>
+                {% endif %}
+    
+                <label for="_step{{i}}">Etape {{i}}</label>
+                {# <input type="text" id="_step{{i}}" name="_steps[]"> #}
+                <textarea name="_steps[]" class="form-control" id="_step{{i}}"></textarea>
+    
+                {% if i != 1 %}
+                <a href="#step{{i - 1}}">Précédent</a>
+                {% endif %}
+    
+                {% if i != 21 %}
+                <a href="#step{{i + 1}}">Ajouter une étape</a>
+                {% endif %}
+            </div>
+    
+            {% endfor %}
+    
+            <input type="hidden" name="_token" value="{{ csrf_token('new') }}">
+    
+            <button type="submit" class="btn btn-primary mt-3">Enregistrer</button>
+            
+        </form>
+    </div>
+</main>
 
 
-        <label for="introduction">écrire une introduction</label>
-        <input type="text" id="introduction" name="_introduction">
-
-        <label for="portions">Préciser le nombre de personnes ou de parts du plat</label>
-        <input type="number" id="portions" name="_portions" min="1" max="100" required>
-
-        {# <div id="step1" class="step">
-            <label for="steps">Rédiger les étapes à suivre pour la préparation</label>
-            <input type="text" name="_steps">
-            <a href="#step2">Suivant</a>
-        </div> #}
-
-        {% for i in 0..19 %}  
-        
-        <div id="step{{i}}" class="step">
-            {% if i == 1 %}
-            <label for="">Rédiger les étapes à suivre pour la préparation</label>
-            {% endif %}
-
-            <label for="">Etape {{i}}</label>
-            <input type="text" id="_step{{i}}" name="_steps[]">
-
-            {% if i != 1 %}
-            <a href="#step{{i - 1}}">Précédent</a>
-            {% endif %}
-
-            {% if i != 21 %}
-            <a href="#step{{i + 1}}">Ajouter une étape</a>
-            {% endif %}
-        </div>
-
-        {% endfor %}
-
-        <input type="hidden" name="_token" value="{{ csrf_token('new') }}">
-
-        <button type="submit">Enregistrer</button>
-        
-    </form>
-</div>
-
-<div class="example-wrapper">
-    <h1>Hello! ✅</h1>
-
-    This friendly message is coming from:
-    <ul>
-        <li>Your controller at <code><a href="{{ 'C:/Users/steev/Projet symfony/site_rectte/src/Controller/RecipesController.php'|file_link(0) }}">src/Controller/RecipesController.php</a></code></li>
-        <li>Your template at <code><a href="{{ 'C:/Users/steev/Projet symfony/site_rectte/templates/recipes/index.html.twig'|file_link(0) }}">templates/recipes/index.html.twig</a></code></li>
-    </ul>
-</div>
 {% endblock %}

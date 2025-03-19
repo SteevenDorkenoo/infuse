@@ -26,7 +26,6 @@ class CategoryController extends AbstractController
     {
         $category = $cr->find($id);
         $recipes = $category->getRecipe();
-        // dd($recipes);
         return $this->render('category/show.html.twig',['recipes'=>$recipes,'category'=>$category]);
     }
 }

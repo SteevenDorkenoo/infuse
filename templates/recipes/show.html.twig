@@ -3,7 +3,218 @@
 {% block title %}{{ recipe.title }}{% endblock %}
 
 {% block body %}
-    <h1>Recette : {{ recipe.title }}</h1>
+<style>
+        
+    .c_img{
+        margin: auto;
+    }
+
+    .plat{
+        object-fit:cover;
+        width : 100%;
+    }
+
+    .ingr{
+        object-fit:cover;
+        height: 140px;
+        width: 140px;
+    }
+
+    .bloc{
+        width: 160px;
+        padding: 10px;
+    }
+
+    .bcomm{
+        width: 70%;
+        margin-inline: 3%;
+    }
+
+    /* BUTTON */
+
+    button{
+        transition-duration: 0.4s;
+        cursor: pointer;
+        border: none;
+    }
+
+    .bpers{
+        width: 5%;
+    }
+
+    .personnes{
+        padding: 2%;
+    }
+
+    .score{
+        font-size: large;
+        margin: auto;
+        padding-left: 10px;
+        padding-right: 10px; 
+    }
+
+    .i_heart{
+        width: 50px;
+    }
+
+    .i_list{
+        width: 40px;
+    }
+
+    .c_heart{
+        padding-right: 20%;
+    }
+
+    .c_list{
+        padding-left: 20%;
+    }
+
+    .downvote{
+        transform: rotate(180deg);;
+    }
+
+    .upvote, .downvote{
+        width: 50px;
+    }
+
+    .b_downvote,.b_upvote{
+        background-color: transparent;
+        padding: 10px;
+        border-radius: 15px;
+    }
+
+    .b_downvote:hover{
+        background-color:var(--myblue);
+        opacity: 20%;
+    }
+
+    .b_upvote:hover{
+        background-color: var(--myred);
+        opacity: 20%;
+    }
+
+    .comm{
+        width: 60px;
+    }
+</style>
+<main class="shadow rounded-4 container-lg">
+
+    <article class="d-flex flex-column justify-content-center">
+        <div class="auteur">{{recipe.userId.username}}</div>
+        
+        <h1>Recette : {{ recipe.title }}</h1>
+
+        <div class="c_img v-stack">
+
+            {% if recipe.image is null %}
+            <img src="{{ asset('uploads/placeholder.jpg') }}" class="plat" alt="Image de la recette">
+            {% else %}
+            <img src="{{ asset('uploads/' ~ recipe.image) }}" class="plat" alt="{{ recipe.image }}">
+            {% endif %}
+
+            <div class="interactions d-flex justify-content-around align-items-center mt-3">
+                <div class="hider border border-2 rounded-4 d-flex justify-content-between overflow-hidden">
+
+                    <form action="{{ path('endorsement_new',{ 'id': recipe.id}) }}" method="post">
+                        <input type="hidden" name="_token" value="{{ csrf_token('new_endors') }}">
+                        <button type="submit" name="vote" class="vote b_upvote" value="{{true}}"><img src="{{ asset('uploads/chevron-double-up.svg') }}" class="upvote" alt="upvote"></img></button>
+                    </form>
+
+                    <p class="score">{{ voteDifference }}</p>
+
+                    <form action="{{ path('endorsement_new',{ 'id': recipe.id}) }}" method="post">
+                        <input type="hidden" name="_token" value="{{ csrf_token('new_endors') }}">
+                        <button type="submit" name="vote" class="vote b_downvote" value="{{false}}"><img src="{{ asset('uploads/chevron-double-up.svg') }}" class="downvote" alt="downvote"></button>
+                    </form>
+
+                </div>
+
+                <div class="d-flex justify-content-between align-items-center">
+                    {% if fav is not null %}
+                    <form action="{{ path('favorites_delete', {'id': recipe.id, 'fav': fav.id }) }}" method="post">
+                        <input type="hidden" name="_token" value="{{ csrf_token('del_fav') }}"> 
+                        <button type="submit" class="btn border"><img src="{{ asset('uploads/heart-solid-red.svg') }}" class="i_heart" alt=""></button>
+                    </form>
+                    {% else %}
+                    <form action="{{ path('favorites_new', {'id' : recipe.id}) }}" method="post"> 
+                        <input type="hidden" name="_token" value="{{ csrf_token('new_fav') }}">
+                        <button type="submit" class="btn border"><img src="{{ asset('uploads/heart-regular.svg') }}" class="i_heart" alt=""></button>
+                    </form>
+                    {% endif %}  
+                </div>
+            </div>
+        </div>
+
+        <hr class="mt-3 mb-3">
+
+        <span id="portions" class="mt-1 mb-1"> portions : {{recipe.portions}}</span>
+
+        <div class="ingredients d-flex align-content-center justify-content-around flex-wrap gap-3 mb-5">
+            {% for row in recipe.ingredients %}
+            <div class="bloc border shadow text-center text-break rounded">
+                <div class="c_ingr">
+                    <p class="fw-bold">{{row.name}}</p>
+                </div>
+                <br>
+                <div class="dose" id="dose">
+                    {{row.dose}}
+                    {% if row.unit != 'nb' %}
+                    : {{row.unit}}
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <hr class="mt-3 mb-3">
+
+        {% for row in steps %}
+        <h4>
+            étapes {{loop.index}}
+        </h4>
+        <p>
+            {{steps[loop.index0].content}}
+        </p>
+        {% endfor %}
+
+
+
+    </article>
+
+    <hr class="mt-3 mb-3">
+
+    <div>
+        {%for commentaire in commentaires %}
+        <div class="mb-4 border-bottom">
+            <span class="fw-bold">
+                {{ commentaire.UserId.username }}
+            </span>
+            
+
+            <p>{{commentaire.content}}</p>
+
+            <span>
+                {% if app.user and app.user.id == commentaire.UserId.id %}
+                <a href="{{ path('commentaire_edit', {'id' : recipe.id , 'com': commentaire.id}) }}" class="link-underline link-underline-opacity-0">editer</a>
+                {% endif %}
+    
+                {% if app.user and app.user.id == commentaire.UserId.id or is_granted('ROLE_ADMIN') %}
+                <form action="{{ path('commentaire_delete', {'recipe' : recipe.id ,'id': commentaire.id}) }}" method="post" style="display: inline;">
+    
+                    <input type="hidden" name="_token" value="{{ csrf_token('delete') }}">
+                    <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?');">Supprimer</button>
+                </form>
+                {% endif %}
+            </span>
+        </div>
+
+        {% endfor %}
+    </div>
+
+
+
+
+    {# <h1>Recette : {{ recipe.title }}</h1>
 
     <table class="table">
         <tbody>
@@ -79,41 +290,105 @@
             <button type="submit" class="btn border">Ajouter en favoris</button>
         </form>
         {% endif %}
-    </div>
+    </div> #}
+
+    {# <div>
+        {% for row in recipe.ingredients %}
+        <div class="border">
+
+            <p>{{row.name}}</p>
+            <div class="dose" id="dose">
+                {{row.dose}}
+            </div>
+            {% if row.unit != 'nb' %}
+            : {{row.unit}}
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div> #}
+
+    
+    
+    {# <div>
+        {% for row in recipe.ingredients %}
+        <div class="border">
+            <p>{{row.name}}</p>
+            <br>
+            <div class="dose" id="dose">{{row.dose}}</div>{% if row.unit != 'nb' %}: {{row.unit}}{% endif %}
+        </div>
+        {% endfor %}
+    </div> #}
+    
+    {# <button id="incrementButton">Increment</button>
+    <button id="decrementButton">Decrement</button> #}
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Sélectionnez l'élément HTML contenant les portions
+            const portionsElement = document.getElementById('portions');
+    
+            // Sélectionnez tous les éléments HTML contenant les doses
+            const doseElements = document.querySelectorAll('.dose');
+    
+            // Sélectionnez les boutons
+            const incrementButton = document.getElementById('incrementButton');
+            const decrementButton = document.getElementById('decrementButton');
+    
+            // Récupérez la valeur des portions et convertissez-la en nombre
+            let portions = parseInt(portionsElement.textContent, 10);
+    
+            // Initialisez un tableau pour stocker les valeurs incr pour chaque dose
+            const incrValues = [];
+    
+            // Calculez les valeurs incr pour chaque dose
+            doseElements.forEach(doseElement => {
+                const og = parseInt(doseElement.textContent, 10);
+                const incr = og / portions;
+                incrValues.push(incr);
+            });
+    
+            // Fonction pour mettre à jour les doses
+            function updateDoses(increment) {
+                doseElements.forEach((doseElement, index) => {
+                    
+                    // Récupérez la valeur actuelle de la dose et convertissez-la en nombre
+                    let currentDose = parseInt(doseElement.textContent, 10);
+    
+                    // Incrémentez ou décrémentez la dose par la valeur incr correspondante
+                    currentDose += increment ? incrValues[index] : -incrValues[index];
+    
+                    // Mettez à jour le contenu de l'élément HTML avec la nouvelle dose
+                    doseElement.textContent = currentDose;
+                });
+            }
+    
+            // Fonction pour mettre à jour les portions
+            function updatePortions(increment) {
+                portions += increment ? 1 : -1;
+                portionsElement.textContent = portions;
+            }
+    
+            // Ajoutez un gestionnaire d'événement au bouton d'incrémentation
+            incrementButton.addEventListener('click', function() {
+                updatePortions(true);
+                updateDoses(true);
+            });
+    
+            // Ajoutez un gestionnaire d'événement au bouton de décrémentation
+            decrementButton.addEventListener('click', function() {
+                if (portions > 1) {
+                    updatePortions(false);
+                    updateDoses(false);
+                }
+            });
+        });
+    </script>
+    
 
     <div>
-        {%for commentaire in commentaires %}
-         <table class="table">
-        <tbody>
-            <tr>
-                <td>{{ commentaire.UserId.username}}</td>
-                
-                <td>
-                    {% if app.user and app.user.id == commentaire.UserId.id %}
-                    <a href="{{ path('commentaire_edit', {'id' : recipe.id , 'com': commentaire.id}) }}">editer</a>
-                    {% endif %}
-
-                    {% if app.user and app.user.id == commentaire.UserId.id or is_granted('ROLE_ADMIN') %}
-                    <form action="{{ path('commentaire_delete', {'recipe' : recipe.id ,'id': commentaire.id}) }}" method="post" style="display: inline;">
-
-                        <input type="hidden" name="_token" value="{{ csrf_token('delete') }}">
-                        <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Êtes-vous sûr de vouloir supprimer ce commentaire ?');">Supprimer</button>
-        
-                    </form>
-                    {% endif %}
-                </td>
-            </tr>
-            <tr>
-                <td>{{commentaire.content}}</td>
-            </tr>
-        </tbody>
-    </table>
-        {%endfor%}
+         <a href="{{ path('commentaire_new',{ 'id': recipe.id}) }}" class="link-underline link-underline-opacity-0">Ajouter commentaire</a>
     </div>
-    <div>
-         <a href="{{ path('commentaire_new',{ 'id': recipe.id}) }}">Ajouter commentaire</a>
-    </div>
-    <a href="{{ path('all_recipes') }}">Retour</a>
+    <a href="{{ path('all_recipes') }}" class="link-underline link-underline-opacity-0">Retour</a>
 
     {% if app.user and app.user.id == recipe.UserId.id %}
         
@@ -123,5 +398,5 @@
     </form>
 
     {% endif %}
-
+</main>
 {% endblock %}

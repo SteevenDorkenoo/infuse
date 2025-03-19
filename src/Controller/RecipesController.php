@@ -10,12 +10,14 @@ use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Flex\Recipe;
 use App\Entity\Recipes;
 use App\Entity\Favorites;
+use App\Entity\Ingredient;
 use App\Entity\Step;
 use App\Repository\RecipesRepository;
 use App\Repository\CommentsRepository;
 use App\Repository\CategoryRepository;
 use App\Repository\EndorsementRepository;
 use App\Repository\FavoritesRepository;
+use App\Repository\IngredientRepository;
 use App\Repository\StepRepository;
 use Symfony\Component\HttpFoundation\File\UploadedFile;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
@@ -24,10 +26,33 @@ class RecipesController extends AbstractController
 {
 
     #[Route('/', name: 'all_recipes',methods:['GET', 'POST'])]
-    public function allRecipes(Request $request, RecipesRepository $repository, CategoryRepository $cr): Response
+    public function allRecipes(Request $request, RecipesRepository $repository, CategoryRepository $cr, EndorsementRepository $er): Response
     {
         $recipes = $repository->findAll();
         $categories = $cr ->findAll();
+    
+        // Tableau pour stocker les recettes avec leur différence de votes
+        $recipesWithVotes = [];
+    
+        foreach ($recipes as $recipe) {
+            $endorsements = $er->findBy(['recipe_id' => $recipe]);
+            $positiveVotes = 0;
+            $negativeVotes = 0;
+    
+            foreach ($endorsements as $endorsement) {
+                if ($endorsement->isVote()) {
+                    $positiveVotes++;
+                } else {
+                    $negativeVotes++;
+                }
+            }
+    
+            // Ajouter la recette et sa différence de votes au tableau
+            $recipesWithVotes[] = [
+                'recipe' => $recipe,
+                'voteDifference' => $positiveVotes - $negativeVotes
+            ];
+        }
 
         $search = $request->query->get('search');
         if($search)
@@ -35,14 +60,34 @@ class RecipesController extends AbstractController
             $search = $request->query->get('search');
             $recipes = $repository->findSearch($search);
             $categories = $cr->findAll();
-
-            return $this->render('recipes/index.html.twig', ['recipes'=>$recipes,'categories'=>$categories]);
+            
+            $recipesWithVotes = [];
+            foreach ($recipes as $recipe) {
+                $endorsements = $er->findBy(['recipe_id' => $recipe]);
+                $positiveVotes = 0;
+                $negativeVotes = 0;
+    
+                foreach ($endorsements as $endorsement) {
+                    if ($endorsement->isVote()) {
+                        $positiveVotes++;
+                    } else {
+                        $negativeVotes++;
+                    }
+                }
+    
+                $recipesWithVotes[] = [
+                    'recipe' => $recipe,
+                    'voteDifference' => $positiveVotes - $negativeVotes
+                ];
+            }
+    
+            return $this->render('recipes/index.html.twig', ['recipesWithVotes' => $recipesWithVotes, 'categories' => $categories]);
         }
-        return $this->render('recipes/index.html.twig', ['recipes'=>$recipes,'categories'=>$categories]);
+        return $this->render('recipes/index.html.twig', ['recipesWithVotes' => $recipesWithVotes,'categories'=>$categories]);
     }
 
     #[Route('/recipes/edit/{id}', name: 'edit_recipes',methods:['GET','POST'])]
-    public function editRecipes(Recipes $recipe, Request $request, EntityManagerInterface $em, StepRepository $sr, ValidatorInterface $validator): Response
+    public function editRecipes(Recipes $recipe, Request $request, EntityManagerInterface $em, StepRepository $sr, ValidatorInterface $validator, IngredientRepository $ir): Response
     {
         $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
         $submittedToken = $request->request->get('_token');
@@ -84,7 +129,21 @@ class RecipesController extends AbstractController
                 $i++;
             }
 
-            $em->persist($recipe, $steps_id); // Prépare l'entité $recipe et les étapes à être sauvegardée dans la base de données
+            $ingres = $request->request->get("_ingres");
+            $units = $request->request->get("_units");
+            $quants = $request->request->get("_quantites");
+            $ingres_id = $ir->findBy(['recipe_id'=> $recipe]);
+
+            $k=0;
+            foreach($ingres_id as $counter)
+            {
+                $ingres_id[$k]->setName($ingres[$k]);
+                $ingres_id[$k]->setDose($quants[$k]);
+                $ingres_id[$k]->setUnit($units[$k]);
+                $k++;
+            }
+
+            $em->persist($recipe, $steps_id, $ingres_id); // Prépare l'entité $recipe et les étapes à être sauvegardée dans la base de données
             
             $errors = $validator->validate([$recipe,$steps_id]);
             if(count($errors) > 0)
@@ -97,7 +156,7 @@ class RecipesController extends AbstractController
             $this->addFlash('success',"La recette a bien été modifié");
             return $this->redirectToRoute('all_recipes');
         }
-        return $this->render('recipes/edit.html.twig',['recipe'=>$recipe,'steps'=>$recipe->getSteps()]);
+        return $this->render('recipes/edit.html.twig',['recipe'=>$recipe,'steps'=>$recipe->getSteps(), 'ingredients'=>$recipe->getIngredients()]);
     }
 
     
@@ -166,8 +225,28 @@ class RecipesController extends AbstractController
                 }
             }
 
+            //Création des ingrédients
+
+            $ingres = $request->request->get('_ingres',[]);
+            $quantites =  $request->request->get('_quantites',[]);
+            $units =  $request->request->get('_units',[]);
+
+            for($i = 0; $i < 31 ; $i++)
+            {
+                if($ingres[$i] != null)
+                {
+                    $ingr = New Ingredient;
+                    $ingr -> setName($ingres[$i]);
+                    $ingr -> setUnit($units[$i]);
+                    $ingr -> setDose($quantites[$i]);
+                    $ingr -> setRecipeId($recipe);
+                    
+                    $em->persist($ingr);
+                }
+            }
+
             // Validation
-            $errors = $validator->validate([$recipe,$step]);
+            $errors = $validator->validate([$recipe,$step,$ingr]);
             if(count($errors) > 0)
             {
                 $this->addFlash('error',"erreur d'informations formulaire");
@@ -200,23 +279,100 @@ class RecipesController extends AbstractController
     #[Route('/recipes/{id}', name: 'recipe_show', methods:'GET')]
     public function show(Recipes $recipe,CommentsRepository $commentaireRepository, FavoritesRepository $fr,EndorsementRepository $er,StepRepository $sr): Response
     {
-        $recipeID = $recipe->getId(); // Récupérer l'ID de la catégorie depuis le formulaire
-        $user = $this->getUser(); // Récupérer informations utilisateur connecté
-
-        $commentaires = $commentaireRepository->findBy(['recipe_id'=>$recipeID]);// Rechercher les commentaires correspondants
-        $fav = $fr->findOneBy(['userId'=>$user,'recipeId'=>$recipeID]);// Recherche du favoris en fonction de la recette et l'utilisateur
-        $endors = $er->findOneBy(['user_id'=> $user,'recipe_id'=> $recipeID]);//Recherche un vote sur l'article
-        $steps = $sr->findBy(['recipe_id'=> $recipe]);
-        
-
-        return $this->render('recipes/show.html.twig',[
+        $recipeID = $recipe->getId();
+        $user = $this->getUser();
+    
+        $commentaires = $commentaireRepository->findBy(['recipe_id' => $recipeID]);
+        $fav = $fr->findOneBy(['userId' => $user, 'recipeId' => $recipeID]);
+        $allEndors = $er->findBy(['recipe_id' => $recipeID]);
+        $endors = $er->findOneBy(['user_id' => $user, 'recipe_id' => $recipeID]);
+        $steps = $sr->findBy(['recipe_id' => $recipe]);
+    
+        // Calculer le nombre de votes positifs et négatifs
+        $positiveVotes = 0;
+        $negativeVotes = 0;
+    
+        foreach ($allEndors as $endorsement) {
+            if ($endorsement->isVote()) {
+                $positiveVotes++;
+            } else {
+                $negativeVotes++;
+            }
+        }
+    
+        $voteDifference = $positiveVotes - $negativeVotes;
+    
+        return $this->render('recipes/show.html.twig', [
             'recipe' => $recipe,
             'commentaires' => $commentaires,
             'fav' => $fav,
             'endors' => $endors,
-            'steps' => $steps
+            'steps' => $steps,
+            'voteDifference' => $voteDifference,
+            'positiveVotes' => $positiveVotes,
+            'negativeVotes' => $negativeVotes
         ]);
     }
-
     
+    #[Route('/my_recipes', name: 'my_recipes', methods: ['GET', 'POST'])]
+    public function myRecipes(Request $request, RecipesRepository $repository, CategoryRepository $cr, EndorsementRepository $er): Response
+    {
+        $this->denyAccessUnlessGranted('IS_AUTHENTICATED_FULLY');
+        $recipes = $repository->findBy(['user_id' => $this->getUser()]);
+        $categories = $cr->findAll();
+    
+        // Tableau pour stocker les recettes avec leur différence de votes
+        $recipesWithVotes = [];
+    
+        foreach ($recipes as $recipe) {
+            $endorsements = $er->findBy(['recipe_id' => $recipe]);
+            $positiveVotes = 0;
+            $negativeVotes = 0;
+    
+            foreach ($endorsements as $endorsement) {
+                if ($endorsement->isVote()) {
+                    $positiveVotes++;
+                } else {
+                    $negativeVotes++;
+                }
+            }
+    
+            // Ajouter la recette et sa différence de votes au tableau
+            $recipesWithVotes[] = [
+                'recipe' => $recipe,
+                'voteDifference' => $positiveVotes - $negativeVotes
+            ];
+        }
+    
+        $search = $request->query->get('search');
+        if ($search) {
+            $recipes = $repository->findSearch($search);
+            $categories = $cr->findAll();
+    
+            // Recalculer la différence des votes pour les recettes filtrées
+            $recipesWithVotes = [];
+            foreach ($recipes as $recipe) {
+                $endorsements = $er->findBy(['recipe_id' => $recipe]);
+                $positiveVotes = 0;
+                $negativeVotes = 0;
+    
+                foreach ($endorsements as $endorsement) {
+                    if ($endorsement->isVote()) {
+                        $positiveVotes++;
+                    } else {
+                        $negativeVotes++;
+                    }
+                }
+    
+                $recipesWithVotes[] = [
+                    'recipe' => $recipe,
+                    'voteDifference' => $positiveVotes - $negativeVotes
+                ];
+            }
+    
+            return $this->render('recipes/index.html.twig', ['recipesWithVotes' => $recipesWithVotes, 'categories' => $categories]);
+        }
+    
+        return $this->render('recipes/index.html.twig', ['recipesWithVotes' => $recipesWithVotes, 'categories' => $categories]);
+    }    
 }
